@@ -199,6 +199,14 @@ module  sprite ( input Reset, frame_clk,
 							 end	  
 					default: ;
 			   endcase
+				//check if sprite is touching a certain color and if it is then stop
+				
+				
+				
+				
+				
+				
+				
 				 end//added this end
 				 
 				 
