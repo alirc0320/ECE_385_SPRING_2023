@@ -94,7 +94,9 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	assign ARDUINO_IO[6] = 1'b1;
 	
 	//HEX drivers to convert numbers to HEX output
-	HexDriver hex_driver4 (hex_num_4, HEX4[6:0]);
+	//HexDriver hex_driver4 (hex_num_4, HEX4[6:0]);
+	logic [3:0] red_debug;
+	HexDriver hex_driver4 (red_debug, HEX4[6:0]);
 	assign HEX4[7] = 1'b1;
 	
 	HexDriver hex_driver3 (hex_num_3, HEX3[6:0]);
@@ -157,7 +159,8 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 		.keycode_export(keycode)
 		
 	 );
-
+logic [3:0] up_1_palette_red, up_1_palette_green, up_1_palette_blue;
+logic collision;
 
 //instantiate a vga_controller, ball, and color_mapper here with the ports.
 
@@ -165,14 +168,14 @@ vga_controller vga(.Clk(MAX10_CLK1_50), .Reset(Reset_h), .hs(VGA_HS), .vs(VGA_VS
 .blank(blank), .sync(sync), .DrawX(drawxsig), .DrawY(drawysig));
 
 
-sprite sprite0(.Reset(Reset_h), .frame_clk(VGA_VS), .keycode(keycode), 
-.spriteX(ballxsig), .spriteY(ballysig), .spriteS(ballsizesig));
+sprite sprite0(.collision(collision), .red(Red), .green(Green), .blue(Blue), .Reset(Reset_h), .frame_clk(VGA_VS), .keycode(keycode), 
+.spriteX(ballxsig), .spriteY(ballysig), .spriteS(ballsizesig), .up_1_palette_red(up_1_palette_red), .up_1_palette_green(up_1_palette_green), .up_1_palette_blue(up_1_palette_blue));
 //
 //
 //color_mapper color(.BallX(ballxsig), .BallY(ballysig), .DrawX(drawxsig),
 // .DrawY(drawysig), .Ball_size(ballsizesig), .Red(Red), .Green(Green), .Blue(Blue)); 
 
-zelda_example zelda( .keycode(keycode), .spriteX(ballxsig), .spriteY(ballysig), .sprite_size(ballsizesig),  .blank(blank), .DrawX(drawxsig), .DrawY(drawysig), .vga_clk(VGA_Clk), .red(Red), .green(Green), .blue(Blue)); 
+zelda_example zelda(.red_debug(red_debug), .collision(collision), .up_1_palette_red(up_1_palette_red), .up_1_palette_green(up_1_palette_green), .up_1_palette_blue(up_1_palette_blue), .keycode(keycode), .spriteX(ballxsig), .spriteY(ballysig), .sprite_size(ballsizesig),  .blank(blank), .DrawX(drawxsig), .DrawY(drawysig), .vga_clk(VGA_Clk), .red(Red), .green(Green), .blue(Blue)); 
 	 
 	 
 	 
