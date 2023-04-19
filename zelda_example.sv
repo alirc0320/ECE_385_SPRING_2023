@@ -5,14 +5,14 @@ module zelda_example (
 	output logic [3:0] red, green, blue,
 	output logic [3:0] up_1_palette_red, up_1_palette_green, up_1_palette_blue,
 	output logic collision,
-	output logic [3:0] red_debug
+	output logic [3:0] red_debug, green_debug, blue_debug
 );
 
 logic [10:0] rom_address;
 //logic [17:0] background_rom_address;
 logic [9:0]  right_1_rom_address;
 logic [9:0]  up_1_rom_address; 
-logic [9:0]  bc_2_rom_address; 
+logic [17:0]  bc_2_rom_address; 
 
 logic [9:0]  left_1_rom_address;
 logic [9:0]  zelda_right_2_rom_address;
@@ -71,13 +71,12 @@ assign up_1_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
 assign background_col_rom_address = ((DrawX * 500) / 640) + (((DrawY * 500) / 480) * 500);
 
 
-assign bc_2_rom_address = ((spriteX * 500) / 640) + (((spriteY * 500) / 480) * 500);//top left coordinate of sprite in terms of background width
+assign bc_2_rom_address = ((spriteX * 500) / 640) + (((spriteY * 500) / 480) * 500);
+
 assign red_debug = bc_red1;
-
-
-
+assign green_debug = bc_green1;
+assign blue_debug = bc_blue1;
  
-
 
 
 
@@ -93,9 +92,11 @@ always_ff @ (posedge vga_clk) begin
 	
 	if(blank) 
 	begin//draw background collision 
-				red <= bc_red;
-				green <= bc_green;
-				blue <= bc_blue;
+		   red <= bc_red;
+			green <= bc_green;
+			blue <= bc_blue;
+
+				
 	 
 	end
 
@@ -140,17 +141,19 @@ always_ff @ (posedge vga_clk) begin
 		
 	8'h1A : begin
 	
-	 if (bc_red1 == 4'hE || bc_red1 == 4'h8 || bc_red1 == 4'h6|| bc_red1 == 4'h4 ) //not working
+	 if (bc_red1 == 4'hB && bc_green1 == 4'h3  && bc_blue1 == 4'hB  ) //not working
 	   collision <= 1;
 	
 	if (DistX < sprite_size && DistY < sprite_size)
 	 
+	 //if(sprite_on == 1'b1)
 	 begin 
 		
 		
 		red <= up_1_palette_red;
 		green <= up_1_palette_green;
 		blue <= up_1_palette_blue;
+		
 	end
 					       
 	end
