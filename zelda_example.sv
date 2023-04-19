@@ -17,6 +17,10 @@ logic [17:0]  bc_2_rom_address;
 logic [9:0]  left_1_rom_address;
 logic [9:0]  zelda_right_2_rom_address;
 logic [17:0] background_col_rom_address;
+
+
+
+logic [17:0] final_bc_address;
 //////////////////////////////////////////////////////////
 logic [6:0] rom_q;
 //logic [6:0] background_rom_q;
@@ -27,6 +31,7 @@ logic [3:0] left_1_rom_q;
 logic [3:0] zelda_right_2_rom_q;
 logic variable;
 logic [6:0] background_col_rom_q;
+logic [6:0] final_bc_q;
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
@@ -38,6 +43,9 @@ logic [3:0] left_1_palette_red, left_1_palette_green, left_1_palette_blue;
 logic [3:0] zelda_right_2_palette_red, zelda_right_2_palette_green, zelda_right_2_palette_blue;
 logic [3:0] bc_red, bc_green, bc_blue;
 logic [3:0] bc_red1, bc_green1, bc_blue1;
+
+
+logic [3:0] final_bc_red, final_bc_green, final_bc_blue;
 
 logic sprite_on;//new
 logic [9:0]DistX, DistY, Size;//new
@@ -67,11 +75,8 @@ assign right_1_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
 assign left_1_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
 assign zelda_right_2_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
 assign up_1_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
-
-assign background_col_rom_address = ((DrawX * 500) / 640) + (((DrawY * 500) / 480) * 500);
-
-
-assign bc_2_rom_address = ((spriteX * 500) / 640) + (((spriteY * 500) / 480) * 500);
+//assign background_col_rom_address = ((DrawX * 500) / 640) + (((DrawY * 500) / 480) * 500);
+assign final_bc_address = ((DrawX * 500) / 640) + (((DrawY * 500) / 480) * 500); 
 
 assign red_debug = bc_red1;
 assign green_debug = bc_green1;
@@ -90,44 +95,62 @@ always_ff @ (posedge vga_clk) begin
 	collision <= 0;	
 
 	
-	if(blank) 
-	begin//draw background collision 
-		   red <= bc_red;
-			green <= bc_green;
-			blue <= bc_blue;
+	if(blank)  
+	begin
+	
+	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	begin
+	red <= 4'hE ;
+	green <= 4'hD; 
+	blue <= 4'hA;
+	end
+	
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+	begin
+	red <= 4'hE ;
+	green <= 4'hD; 
+	blue <= 4'hA;
+	end
+	
+	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
+	begin
+	red <= 4'hE ;
+	green <= 4'hD; 
+	blue <= 4'hA;
+	end
+	
+	//draw background collision 
+		   red <= final_bc_red;
+			green <= final_bc_green;
+			blue <= final_bc_blue;
 
 				
 	 
 	end
 
 	 case (keycode)
+	
 	8'h07 : begin
-	while(1 == 1);
-	begin
-	variable = 1;
+	
+	bc_2_rom_address <= (((spriteX+32) * 500) / 640) + ((((spriteY+16)* 500) / 480) * 500);
+	
+//	if (bc_red1 == 4'hD  && bc_green1 == 4'h8  && bc_blue1 ==  4'hA)
+//	collision <= 1;
+	if (bc_red1 == 4'hB && bc_green1 == 4'h4  && bc_blue1 == 4'h7)
+	 collision <= 1;
+	if(bc_red1 == 4'hF && bc_green1 == 4'hC   && bc_blue1 == 4'hC) //not working
+	   collision <= 1;
+	
 	if (DistX < sprite_size && DistY < sprite_size)
-	 if (sprite_on == 1'b1 ) //draw sprite
-	 begin
-	 if(variable == 1'b1)
+	
+	
 	 begin //changed blank
 		red <= right_1_palette_red;
 		green <= right_1_palette_green;
 		blue <= right_1_palette_blue;
-		variable = 1'b0;
 	end
 	
-	if (variable == 1'b0);
-	 begin //changed blank
-		red <= zelda_right_2_palette_red;
-		green <= zelda_right_2_palette_green;
-		blue <= zelda_right_2_palette_blue;
-	end
-	
-	end
-	
-	
-	
-	end							
+						
 		
 		end //ends when u release key
 		
@@ -141,12 +164,18 @@ always_ff @ (posedge vga_clk) begin
 		
 	8'h1A : begin
 	
-	 if (bc_red1 == 4'hB && bc_green1 == 4'h3  && bc_blue1 == 4'hB  ) //not working
-	   collision <= 1;
+	bc_2_rom_address <= (((spriteX+16) * 500) / 640) + (((spriteY * 500) / 480) * 500);
 	
+//	if (bc_red1 == 4'hD  && bc_green1 == 4'h8  && bc_blue1 ==  4'hA)
+//	collision <= 1;
+	if (bc_red1 == 4'hB && bc_green1 == 4'h4  && bc_blue1 == 4'h7)
+	 collision <= 1;
+	if(bc_red1 == 4'hF && bc_green1 == 4'hC   && bc_blue1 == 4'hC) //not working
+	   collision <= 1;
+		
 	if (DistX < sprite_size && DistY < sprite_size)
 	 
-	 //if(sprite_on == 1'b1)
+	 
 	 begin 
 		
 		
@@ -159,35 +188,17 @@ always_ff @ (posedge vga_clk) begin
 	end
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 	8'h04 : begin
+	
+	bc_2_rom_address <= (((spriteX) * 500) / 640) + ((((spriteY+16) * 500) / 480) * 500);
+		
+//		
+//	if (bc_red1 == 4'hD  && bc_green1 == 4'h8  && bc_blue1 ==  4'hA)
+//	collision <= 1;
+	if (bc_red1 == 4'hB && bc_green1 == 4'h4  && bc_blue1 == 4'h7)
+	 collision <= 1;
+	if(bc_red1 == 4'hF && bc_green1 == 4'hC   && bc_blue1 == 4'hC) //not working
+	   collision <= 1;
 		
 	if (DistX < sprite_size && DistY < sprite_size)
 	 if ((sprite_on == 1'b1)) //draw sprite
@@ -202,6 +213,17 @@ always_ff @ (posedge vga_clk) begin
 		
 	8'h16 : begin
 		
+	
+	bc_2_rom_address <= (((spriteX-32) * 500) / 640) + ((( (spriteY+32) * 500) / 480) * 500);
+	
+		
+//	if (bc_red1 == 4'hD  && bc_green1 == 4'h8  && bc_blue1 ==  4'hA)
+//	collision <= 1;
+	if (bc_red1 == 4'hB && bc_green1 == 4'h4  && bc_blue1 == 4'h7)
+	 collision <= 1;
+	if(bc_red1 == 4'hF && bc_green1 == 4'hC   && bc_blue1 == 4'hC) //not working
+	   collision <= 1;
+		
 	if (DistX < sprite_size && DistY < sprite_size)
 	 if (sprite_on == 1'b1 && palette_red != 8'h07  && palette_green != 8'h07 && palette_blue != 8'h06 ) //draw sprite
 	 begin //changed blank
@@ -209,6 +231,7 @@ always_ff @ (posedge vga_clk) begin
 		green <= palette_green;
 		blue <= palette_blue;
 	end
+	
 					       
 	end
 		
@@ -250,6 +273,44 @@ end
 		
 		
 		
+Final_background_rom Final_background_rom (
+	.clock   (vga_clk),
+	.address (final_bc_address),
+	.q       (final_bc_q),
+	
+	
+	
+	.q_collision(bc_2_rom_q),
+	.collision_address(bc_2_rom_address)
+);
+
+Final_background_palette Final_background_palette (
+	.index (final_bc_q),
+	.red   (final_bc_red),
+	.green (final_bc_green),
+	.blue  (final_bc_blue),
+	
+	
+
+	.index2 (bc_2_rom_q),
+	.red1 (bc_red1),
+	.green1(bc_green1),
+	.blue1(bc_blue1)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 zelda_rom zelda_rom (
@@ -281,28 +342,28 @@ zelda_palette zelda_palette (
 //	.green (background_palette_green),
 //	.blue  (background_palette_blue)
 //);
-	
-background_collision_rom background_collision_rom (
-	.clock   (vga_clk),
-	.address (background_col_rom_address),
-	.q       (background_col_rom_q),
-	
-	.q_collision(bc_2_rom_q),
-	.collision_address(bc_2_rom_address)
-);
-
-
-background_collision_palette background_collision_palette (
-	.index (background_col_rom_q),
-	.red   (bc_red),
-	.green (bc_green),
-	.blue  (bc_blue),
-	
-	.index2 (bc_2_rom_q),
-	.red1 (bc_red1),
-	.green1(bc_green1),
-	.blue1(bc_blue1)
-);
+//	
+//background_collision_rom background_collision_rom (
+//	.clock   (vga_clk),
+//	.address (background_col_rom_address),
+//	.q       (background_col_rom_q),
+//	
+//	.q_collision(bc_2_rom_q),
+//	.collision_address(bc_2_rom_address)
+//);
+//
+//
+//background_collision_palette background_collision_palette (
+//	.index (background_col_rom_q),
+//	.red   (bc_red),
+//	.green (bc_green),
+//	.blue  (bc_blue),
+//	
+//	.index2 (bc_2_rom_q),
+//	.red1 (bc_red1),
+//	.green1(bc_green1),
+//	.blue1(bc_blue1)
+//);
 
 
 

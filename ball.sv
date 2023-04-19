@@ -35,11 +35,7 @@ module  sprite ( input Reset, frame_clk,
         begin 
 				
 			
-			if (collision)
-					begin			
-					sprite_Y_Motion <= 0;
-				   sprite_X_Motion <=  0;
-				 end
+			
 				 
 				
 			
@@ -57,27 +53,29 @@ module  sprite ( input Reset, frame_clk,
 					  
 				 
 				 case (keycode)
-					8'h04 : begin
+					8'h04 : begin //left
 
-								sprite_X_Motion <= -1;//A
+								sprite_X_Motion <= -2;//A
 								sprite_Y_Motion<= 0;
 				 
 			if (collision)
 					begin			
+					sprite_X_Motion <= 0;
 					sprite_Y_Motion <= 0;
-				   sprite_X_Motion <=  0;
 				 end
 								
 							  end
 					        
-					8'h07 : begin
+					8'h07 : begin //right
 								
-					        sprite_X_Motion <= 1;//D
+					        sprite_X_Motion <= 2;//D
 							  sprite_Y_Motion <= 0;
-							   if (collision)
+				
+				
+			if (collision)
 					begin			
+					sprite_X_Motion <= 0;
 					sprite_Y_Motion <= 0;
-				   sprite_X_Motion <=  0;
 				 end
 				  
 	
@@ -85,27 +83,28 @@ module  sprite ( input Reset, frame_clk,
 							  end
 
 							  
-					8'h16 : begin
+					8'h16 : begin //down
 
-					        sprite_Y_Motion <= 1;//S
+					        sprite_Y_Motion <= 2;//S
 							  sprite_X_Motion <= 0;
-				if (collision)
+			
+			if (collision)
 					begin			
+					sprite_X_Motion <= 0;
 					sprite_Y_Motion <= 0;
-				   sprite_X_Motion <=  0;
 				 end
 							 
 							  
 							 end
 							  
-					8'h1A : begin
-					        sprite_Y_Motion <= -1;//W
+					8'h1A : begin //up
+					        sprite_Y_Motion <= -2;//W
 							  sprite_X_Motion <= 0;
 							   
 				if (collision)
 					begin			
+					sprite_X_Motion <= 0;
 					sprite_Y_Motion <= 0;
-				   sprite_X_Motion <=  0;
 				 end
 							
 							 end	  
@@ -130,12 +129,7 @@ module  sprite ( input Reset, frame_clk,
 				   sprite_X_Motion <=  0;
 				 end
 				 
-				if (collision)
-					begin			
-					sprite_Y_Motion <= 0;
-				   sprite_X_Motion <=  0;
-				 end
-				  
+				
 				
 				 
 				 
