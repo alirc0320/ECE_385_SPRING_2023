@@ -223,13 +223,7 @@ endmodule
 ////////////////////////////////////////////////////////////////////
 module Final_background_palette (
 	input logic [3:0] index,
-	output logic [3:0] red, green, blue,
-	
-	
-	
-	
-	input logic [3:0] index2,
-	output logic [3:0] red1, green1, blue1
+	output logic [3:0] red, green, blue
 );
 
 localparam [0:15][11:0] palette = {
@@ -252,7 +246,7 @@ localparam [0:15][11:0] palette = {
 };
 
 assign {red, green, blue} = palette[index];
-assign {red1, green1, blue1} = palette[index2];
+
 
 endmodule
 

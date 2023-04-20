@@ -78,12 +78,10 @@ assign up_1_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
 //assign background_col_rom_address = ((DrawX * 500) / 640) + (((DrawY * 500) / 480) * 500);
 assign final_bc_address = ((DrawX * 500) / 640) + (((DrawY * 500) / 480) * 500); 
 
-assign red_debug = bc_red1;
-assign green_debug = bc_green1;
-assign blue_debug = bc_blue1;
+assign red_debug = final_bc_red;
+assign green_debug = final_bc_green;
+assign blue_debug = final_bc_blue;
  
-
-
 
 
 
@@ -92,152 +90,136 @@ always_ff @ (posedge vga_clk) begin
 	red <= 4'h0;
 	green <= 4'h0;
 	blue <= 4'h0;
-	collision <= 0;	
+	if (DrawX == 0 && DrawY == 0)
+		collision <= 0;	
 
 	
 	if(blank)  
 	begin
 	
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-	begin
-	red <= 4'hE ;
-	green <= 4'hD; 
-	blue <= 4'hA;
-	end
-	
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-	begin
-	red <= 4'hE ;
-	green <= 4'hD; 
-	blue <= 4'hA;
-	end
-	
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-	begin
-	red <= 4'hE ;
-	green <= 4'hD; 
-	blue <= 4'hA;
-	end
-	
 	//draw background collision 
 		   red <= final_bc_red;
 			green <= final_bc_green;
-			blue <= final_bc_blue;
-
-				
-	 
+			blue <= final_bc_blue; 
 	end
 
 	 case (keycode)
 	
-	8'h07 : begin
-	
-	bc_2_rom_address <= (((spriteX+32) * 500) / 640) + ((((spriteY+16)* 500) / 480) * 500);
-	
-//	if (bc_red1 == 4'hD  && bc_green1 == 4'h8  && bc_blue1 ==  4'hA)
-//	collision <= 1;
-	if (bc_red1 == 4'hB && bc_green1 == 4'h4  && bc_blue1 == 4'h7)
-	 collision <= 1;
-	if(bc_red1 == 4'hF && bc_green1 == 4'hC   && bc_blue1 == 4'hC) //not working
-	   collision <= 1;
+	8'h07 : begin //right
 	
 	if (DistX < sprite_size && DistY < sprite_size)
-	
-	
 	 begin //changed blank
+	 
+		
 		red <= right_1_palette_red;
 		green <= right_1_palette_green;
 		blue <= right_1_palette_blue;
+		
+		
+		// DistX > sprite_size-5
+		if((spriteX + (sprite_size-1) == DrawX) && (spriteY == DrawY))//never true 
+		begin
+	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
+	collision <= 1;
+	end	
+
+	
 	end
 	
-						
-		
-		end //ends when u release key
-		
-		
-		
-		
 	
 	
-	
-	
+	end //ends when u release key
 		
-	8'h1A : begin
 	
-	bc_2_rom_address <= (((spriteX+16) * 500) / 640) + (((spriteY * 500) / 480) * 500);
-	
-//	if (bc_red1 == 4'hD  && bc_green1 == 4'h8  && bc_blue1 ==  4'hA)
-//	collision <= 1;
-	if (bc_red1 == 4'hB && bc_green1 == 4'h4  && bc_blue1 == 4'h7)
-	 collision <= 1;
-	if(bc_red1 == 4'hF && bc_green1 == 4'hC   && bc_blue1 == 4'hC) //not working
-	   collision <= 1;
-		
+	8'h1A : begin //up
 	if (DistX < sprite_size && DistY < sprite_size)
-	 
-	 
 	 begin 
-		
-		
 		red <= up_1_palette_red;
 		green <= up_1_palette_green;
 		blue <= up_1_palette_blue;
 		
-	end
-					       
-	end
 		
 		
-	8'h04 : begin
+		if((spriteX + 16 == DrawX) && (spriteY == DrawY))
+		begin
+	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	collision <= 1;
 	
-	bc_2_rom_address <= (((spriteX) * 500) / 640) + ((((spriteY+16) * 500) / 480) * 500);
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
+	collision <= 1;
+	end	
+
+	end			       
+	end
 		
-//		
-//	if (bc_red1 == 4'hD  && bc_green1 == 4'h8  && bc_blue1 ==  4'hA)
-//	collision <= 1;
-	if (bc_red1 == 4'hB && bc_green1 == 4'h4  && bc_blue1 == 4'h7)
-	 collision <= 1;
-	if(bc_red1 == 4'hF && bc_green1 == 4'hC   && bc_blue1 == 4'hC) //not working
-	   collision <= 1;
+		
+	8'h04 : begin //left
 		
 	if (DistX < sprite_size && DistY < sprite_size)
-	 if ((sprite_on == 1'b1)) //draw sprite
-	 begin //changed blank
+	 begin
 		red <= left_1_palette_red;
 		green <= left_1_palette_green;
 		blue <= left_1_palette_blue;
+		
+		if(spriteX == DrawX && spriteY == DrawY) 
+		begin
+	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
+	collision <= 1;
+	end	 
+
 	end
 					       
 	end
 	
 		
-	8'h16 : begin
-		
-	
-	bc_2_rom_address <= (((spriteX-32) * 500) / 640) + ((( (spriteY+32) * 500) / 480) * 500);
-	
-		
-//	if (bc_red1 == 4'hD  && bc_green1 == 4'h8  && bc_blue1 ==  4'hA)
-//	collision <= 1;
-	if (bc_red1 == 4'hB && bc_green1 == 4'h4  && bc_blue1 == 4'h7)
-	 collision <= 1;
-	if(bc_red1 == 4'hF && bc_green1 == 4'hC   && bc_blue1 == 4'hC) //not working
-	   collision <= 1;
+	8'h16 : begin //down
 		
 	if (DistX < sprite_size && DistY < sprite_size)
-	 if (sprite_on == 1'b1 && palette_red != 8'h07  && palette_green != 8'h07 && palette_blue != 8'h06 ) //draw sprite
+	 //if (sprite_on == 1'b1 && palette_red != 8'h07  && palette_green != 8'h07 && palette_blue != 8'h06 ) //draw sprite
 	 begin //changed blank
 		red <= palette_red;
 		green <= palette_green;
 		blue <= palette_blue;
-	end
+		
+		//instead of drawx, check boundaries 
+		
+	if((spriteX +(sprite_size-1) == DrawX) && (spriteY+(sprite_size-1) == DrawY))
+	begin
+	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	collision <= 1;
 	
-					       
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
+	collision <= 1;
+	end	
+	
+	
+	
+	
+	end				       
 	end
 		
 	default: begin 	
 		
 
+		
 	if (DistX < sprite_size && DistY < sprite_size)
 	 if (sprite_on == 1'b1 && palette_red != 8'h07  && palette_green != 8'h07 && palette_blue != 8'h06 ) //draw sprite
 
@@ -253,20 +235,60 @@ end
 
 endcase 
 
+end  //always_ff end 
 
 
 
-
-
-
-
-
-
-
-
-
-end
 	   
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 		
@@ -276,26 +298,14 @@ end
 Final_background_rom Final_background_rom (
 	.clock   (vga_clk),
 	.address (final_bc_address),
-	.q       (final_bc_q),
-	
-	
-	
-	.q_collision(bc_2_rom_q),
-	.collision_address(bc_2_rom_address)
+	.q       (final_bc_q)
 );
 
 Final_background_palette Final_background_palette (
 	.index (final_bc_q),
 	.red   (final_bc_red),
 	.green (final_bc_green),
-	.blue  (final_bc_blue),
-	
-	
-
-	.index2 (bc_2_rom_q),
-	.red1 (bc_red1),
-	.green1(bc_green1),
-	.blue1(bc_blue1)
+	.blue  (final_bc_blue)
 );
 
 
