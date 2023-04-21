@@ -12,80 +12,6 @@ end
 
 endmodule
 
-//
-//module background_rom (
-//	input logic clock,
-//	input logic [17:0] address,
-//	output logic [4:0] q
-//);
-//
-//logic [4:0] memory [0:249999] /* synthesis ram_init_file = "./background/background.mif" */;
-//
-//always_ff @ (posedge clock) begin
-//	q <= memory[address];
-//end
-//
-//endmodule
-
-
-
-
-module zelda_right_1_rom (
-	input logic clock,
-	input logic [9:0] address,
-	output logic [3:0] q
-);
-
-logic [3:0] memory [0:1023] /* synthesis ram_init_file = "./zelda_right_1/zelda_right_1.mif" */;
-
-always_ff @ (posedge clock) begin
-	q <= memory[address];
-end
-
-endmodule
-
-
-
-
-module zelda_up_1_rom (
-	input logic clock,
-	input logic [9:0] address,
-	output logic [3:0] q
-	
-);
-
-logic [3:0] memory [0:1023] /* synthesis ram_init_file = "./zelda_up_1/zelda_up_1.mif" */;
-
-always_ff @ (posedge clock) begin
-	q <= memory[address];
-end
-
-endmodule
-
-
-
-
-
-
-
-
-
-
-
-module zelda_left_1_rom (
-	input logic clock,
-	input logic [9:0] address,
-	output logic [3:0] q
-);
-
-logic [3:0] memory [0:1023] /* synthesis ram_init_file = "./zelda_left_1/zelda_left_1.mif" */;
-
-always_ff @ (posedge clock) begin
-	q <= memory[address];
-end
-
-endmodule
-
 
 
 
@@ -105,30 +31,6 @@ endmodule
 
 
 
-//
-//
-//
-//module background_collision_rom (
-//	input logic clock,
-//	input logic [17:0] address,
-//	output logic [3:0] q,
-//	
-//	
-//	output logic [3:0] q_collision,
-//	input logic [17:0] collision_address
-//);
-//
-//logic [3:0] memory [0:249999] /* synthesis ram_init_file = "./background_collision/background_collision.mif" */;
-//
-//always_ff @ (posedge clock) begin
-//	q <= memory[address];
-//	q_collision <= memory[collision_address]; //added
-//end
-//
-//endmodule
-
-/////////////////////////////////////////////////////
-
 module Final_background_rom (
 	input logic clock,
 	input logic [17:0] address,
@@ -143,4 +45,92 @@ always_ff @ (posedge clock) begin
 end
 
 endmodule
+
+
+
+
+module up1_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [3:0] q
+);
+
+logic [3:0] memory [0:1023] /* synthesis ram_init_file = "./up1/up1.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+
+
+
+module final_down1_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [3:0] q
+);
+
+logic [3:0] memory [0:1023] /* synthesis ram_init_file = "./final_down1/final_down1.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+module final_right1_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [3:0] q
+);
+
+logic [3:0] memory [0:1023] /* synthesis ram_init_file = "./final_right1/final_right1.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+module final_final_sprite_left_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./final_final_sprite_left/final_final_sprite_left.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+
+
+
+module final_final_right_sprite_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./final_final_right_sprite/final_final_right_sprite.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+
+
+
 
