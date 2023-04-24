@@ -130,6 +130,66 @@ end
 endmodule
 
 
+module final_left2_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./final_left2/final_left2.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+
+module final_up2_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./final_up2/final_up2.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+module final_down2_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./final_down2/final_down2.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+
+module aleena_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./aleena/aleena.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
 
 
 

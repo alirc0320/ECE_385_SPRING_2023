@@ -16,10 +16,10 @@ module  sprite ( input Reset, frame_clk,
     parameter [9:0] sprite_X_Max=639;     // Rightmost point on the X axis
     parameter [9:0] sprite_Y_Min=0;       // Topmost point on the Y axis
     parameter [9:0] sprite_Y_Max=479;     // Bottommost point on the Y axis
-    parameter [9:0] sprite_X_Step=5;      // Step size on the X axis
-    parameter [9:0] sprite_Y_Step=5;      // Step size on the Y axis
+    parameter [9:0] sprite_X_Step=8;      // Step size on the X axis
+    parameter [9:0] sprite_Y_Step=8;      // Step size on the Y axis
 
-    assign sprite_Size = 30;  // assigns the value 4 as a 10-digit binary number, ie "0000000100"
+    assign sprite_Size = 30; // assigns the value 4 as a 10-digit binary number, ie "0000000100"
    
     always_ff @ (posedge Reset or posedge frame_clk )
     begin: Move_sprite

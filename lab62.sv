@@ -163,7 +163,7 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 		.keycode_export(keycode)
 		
 	 );
-logic [3:0] up_1_palette_red, up_1_palette_green, up_1_palette_blue;
+
 logic collision;
 
 //instantiate a vga_controller, ball, and color_mapper here with the ports.
@@ -173,13 +173,10 @@ vga_controller vga(.Clk(MAX10_CLK1_50), .Reset(Reset_h), .hs(VGA_HS), .vs(VGA_VS
 
 
 sprite sprite0(.collision(collision), .red(Red), .green(Green), .blue(Blue), .Reset(Reset_h), .frame_clk(VGA_VS), .keycode(keycode), 
-.spriteX(ballxsig), .spriteY(ballysig), .spriteS(ballsizesig), .up_1_palette_red(up_1_palette_red), .up_1_palette_green(up_1_palette_green), .up_1_palette_blue(up_1_palette_blue));
+.spriteX(ballxsig), .spriteY(ballysig), .spriteS(ballsizesig));
 
 
-//color_mapper color(.BallX(ballxsig), .BallY(ballysig), .DrawX(drawxsig),
-// .DrawY(drawysig), .Ball_size(ballsizesig), .Red(Red), .Green(Green), .Blue(Blue)); 
-
-zelda_example zelda(.blue_debug(blue_debug), .green_debug(green_debug), .red_debug(red_debug), .collision(collision), .up_1_palette_red(up_1_palette_red), .up_1_palette_green(up_1_palette_green), .up_1_palette_blue(up_1_palette_blue), .keycode(keycode), .spriteX(ballxsig), .spriteY(ballysig), .sprite_size(ballsizesig),  .blank(blank), .DrawX(drawxsig), .DrawY(drawysig), .vga_clk(VGA_Clk), .red(Red), .green(Green), .blue(Blue)); 
+zelda_example zelda( .Reset(Reset_h), .blue_debug(blue_debug), .green_debug(green_debug), .red_debug(red_debug), .collision(collision), .keycode(keycode), .spriteX(ballxsig), .spriteY(ballysig), .sprite_size(ballsizesig),  .blank(blank), .DrawX(drawxsig), .DrawY(drawysig), .vga_clk(VGA_Clk), .red(Red), .green(Green), .blue(Blue)); 
 	 
 	 
 	 
