@@ -18,7 +18,7 @@ module  sprite ( input Reset, frame_clk,
     parameter [9:0] sprite_Y_Max=479;     // Bottommost point on the Y axis
     parameter [9:0] sprite_X_Step=8;      // Step size on the X axis
     parameter [9:0] sprite_Y_Step=8;      // Step size on the Y axis
-
+//was 30 before sword stuff
     assign sprite_Size = 30; // assigns the value 4 as a 10-digit binary number, ie "0000000100"
    
     always_ff @ (posedge Reset or posedge frame_clk )
