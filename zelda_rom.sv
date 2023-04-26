@@ -387,3 +387,64 @@ always_ff @ (posedge clock) begin
 end
 
 endmodule
+
+module sword_left_1_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./sword_left_1/sword_left_1.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+
+module sword_left_2_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./sword_left_2/sword_left_2.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+
+module sword_left_3_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./sword_left_3/sword_left_3.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
+
+
+module sword_left_4_rom (
+	input logic clock,
+	input logic [9:0] address,
+	output logic [2:0] q
+);
+
+logic [2:0] memory [0:1023] /* synthesis ram_init_file = "./sword_left_4/sword_left_4.mif" */;
+
+always_ff @ (posedge clock) begin
+	q <= memory[address];
+end
+
+endmodule
