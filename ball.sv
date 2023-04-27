@@ -5,6 +5,7 @@ module  sprite ( input Reset, frame_clk,
                output [9:0]  spriteX, spriteY, spriteS,
 					input [3:0] red, green, blue, //new stop deleting 
 					input logic collision,
+					input logic dead,
 					input logic [3:0] up_1_palette_red, up_1_palette_green, up_1_palette_blue
 					);
     
@@ -30,7 +31,19 @@ module  sprite ( input Reset, frame_clk,
 				sprite_Y_Pos <= sprite_Y_Center;
 				sprite_X_Pos <= sprite_X_Center;
         end
-           
+          
+//		else if(dead)	
+//		
+//		begin 
+//            sprite_Y_Motion <= 10'd0; //sprite_Y_Step;
+//				sprite_X_Motion <= 10'd0; //sprite_X_Step;
+//				sprite_Y_Pos <= sprite_Y_Center;
+//				sprite_X_Pos <= sprite_X_Center;
+//        end
+//          
+
+
+	
         else 
         begin 
 				
@@ -137,15 +150,6 @@ module  sprite ( input Reset, frame_clk,
 				 sprite_X_Pos <= (sprite_X_Pos + sprite_X_Motion);
 			
 			
-	  /**************************************************************************************
-	    ATTENTION! Please answer the following quesiton in your lab report! Points will be allocated for the answers!
-		 Hidden Question #2/2:
-          Note that sprite_Y_Motion in the above statement may have been changed at the same clock edge
-          that is causing the assignment of sprite_Y_pos.  Will the new value of sprite_Y_Motion be used,
-          or the old?  How will this impact behavior of the sprite during a bounce, and how might that 
-          interact with a response to a keypress?  Can you fix it?  Give an answer in your Post-Lab.
-      **************************************************************************************/
-      
 			
 		end  
     end
@@ -159,3 +163,105 @@ module  sprite ( input Reset, frame_clk,
 
 endmodule
 
+module  enemy_ball ( input Reset, frame_clk,
+					input [7:0] keycode,
+					input  dead, 
+               output [9:0]  enemy_X, enemy_Y, enemy_S );
+    
+    logic [9:0] enemy_X_Pos, enemy_X_Motion, enemy_Y_Pos, enemy_Y_Motion, enemy_Size;
+	 
+    parameter [9:0] enemy_X_Center=350;  // Center position on the X axis
+    parameter [9:0] enemy_Y_Center=50;  // Center position on the Y axis
+    parameter [9:0] enemy_X_Min=255;       // Leftmost point on the X axis
+    parameter [9:0] enemy_X_Max=350;     // Rightmost point on the X axis
+    parameter [9:0] enemy_Y_Min=0;       // Topmost point on the Y axis
+    parameter [9:0] enemy_Y_Max=300;     // Bottommost point on the Y axis
+    parameter [9:0] enemy_X_Step=1;      // Step size on the X axis
+    parameter [9:0] enemy_Y_Step=1;      // Step size on the Y axis
+
+    assign enemy_Size = 30;  // assigns the value 4 as a 10-digit binary number, ie "0000000100"
+   
+    always_ff @ (posedge Reset or posedge frame_clk )
+    begin: Move_enemy
+        if (Reset)  // Asynchronous Reset
+        begin 
+            enemy_Y_Motion <= 10'd0; //enemy_Y_Step;
+				enemy_X_Motion <= 10'd0; //enemy_X_Step;
+				enemy_Y_Pos <= enemy_Y_Center;
+				enemy_X_Pos <= enemy_X_Center;
+        end
+           
+//			else if(dead)	
+//		begin 
+//           enemy_Y_Motion <= 10'd0; //enemy_Y_Step;
+//				enemy_X_Motion <= 10'd0; //enemy_X_Step;
+//				enemy_Y_Pos <= enemy_Y_Center;
+//				enemy_X_Pos <= enemy_X_Center;
+//        end  
+//			  
+			  
+			  
+			  
+			  
+			  
+			  
+			  
+			  
+			  
+        else 
+        begin 
+				 if ( (enemy_Y_Pos + enemy_Size) >= enemy_Y_Max )  // enemy is at the bottom edge, BOUNCE!
+					  enemy_Y_Motion <= (~ (enemy_Y_Step) + 1'b1);  // 2's complement.
+					  
+				 else if ( (enemy_Y_Pos - enemy_Size) <= enemy_Y_Min )  // enemy is at the top edge, BOUNCE!
+					  enemy_Y_Motion <= enemy_Y_Step;
+				 	  
+				  else if ( (enemy_X_Pos + enemy_Size) >= enemy_X_Max ) begin // enemy is at the Right edge, BOUNCE!
+					  enemy_X_Motion <= (~ (enemy_X_Step) + 1'b1);  // 2's complement.
+//					  enemy_X_Motion <= -1; 
+//					  enemy_Y_Motion <= 0;
+	
+					  end 
+				 else if ( (enemy_X_Pos - enemy_Size) <= enemy_X_Min )
+			begin	 // enemy is at the Left edge, BOUNCE!
+					  enemy_X_Motion <= enemy_X_Step;
+					  //added this begin
+//					  enemy_X_Motion <= 1; 
+//					  enemy_Y_Motion <= 0;
+					  end
+				 else begin
+					  enemy_Y_Motion <= enemy_Y_Motion;  // enemy is somewhere in the middle, don't bounce, just keep moving
+					  
+				 
+//				 case (keycode)
+//					
+//					default: 
+//						begin
+//						if((enemy_X_Pos != enemy_X_Min) || (enemy_X_Pos +(enemy_Size - 7)!= enemy_X_Max))
+//						enemy_X_Motion <= 1; 
+//						
+//						end
+//				endcase
+				 end//added this end
+				 enemy_Y_Pos <= (enemy_Y_Pos + enemy_Y_Motion);  // Update enemy position
+				 enemy_X_Pos <= (enemy_X_Pos + enemy_X_Motion);
+				 
+				 
+				 
+				
+				 
+			
+		
+      
+			
+		end  
+    end
+       
+    assign enemy_X = enemy_X_Pos;
+   
+    assign enemy_Y = enemy_Y_Pos;
+   
+    assign enemy_S = enemy_Size;
+    
+
+endmodule

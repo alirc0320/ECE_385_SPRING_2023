@@ -7,7 +7,7 @@
 
 
 module lab62 (
-
+ 
       ///////// Clocks /////////
       input     MAX10_CLK1_50, 
 
@@ -52,6 +52,7 @@ module lab62 (
       ///////// ARDUINO /////////
       inout    [15: 0]   ARDUINO_IO,
       inout              ARDUINO_RESET_N 
+		
 
 );
 
@@ -71,6 +72,9 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	logic [9:0] drawxsig, drawysig, ballxsig, ballysig, ballsizesig;
 	logic [7:0] Red, Blue, Green;
 	logic [7:0] keycode;
+	
+	logic [9:0] drawxsig2, drawysig2, ballxsig2, ballysig2, ballsizesig2;
+	logic [7:0] Red2, Blue2, Green2;
 
 //=======================================================
 //  Structural coding
@@ -95,22 +99,22 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	
 	//HEX drivers to convert numbers to HEX output
 	//HexDriver hex_driver4 (hex_num_4, HEX4[6:0]);
-	logic [3:0] red_debug;
-	HexDriver hex_driver4 (red_debug, HEX4[6:0]);
-	assign HEX4[7] = 1'b1;
+	//logic [3:0] red_debug;
+//	HexDriver hex_driver4 (red_debug, HEX4[6:0]);
+//	assign HEX4[7] = 1'b1;
+//	
+//	//HexDriver hex_driver3 (hex_num_3, HEX3[6:0]);
+//	//logic [3:0] green_debug;
+//	HexDriver hex_driver3 (flag_for_dying, HEX3[6:0]);
+//	assign HEX3[7] = 1'b0;
+//	
+//	//HexDriver hex_driver1 (hex_num_1, HEX1[6:0]);
+//	logic [3:0] blue_debug;
+//	HexDriver hex_driver1 (blue_debug, HEX1[6:0]);
+//	//assign HEX1[7] = 1'b1;
 	
-	//HexDriver hex_driver3 (hex_num_3, HEX3[6:0]);
-	logic [3:0] green_debug;
-	HexDriver hex_driver3 (green_debug, HEX3[6:0]);
-	assign HEX3[7] = 1'b1;
-	
-	//HexDriver hex_driver1 (hex_num_1, HEX1[6:0]);
-	logic [3:0] blue_debug;
-	HexDriver hex_driver1 (blue_debug, HEX1[6:0]);
-	assign HEX1[7] = 1'b1;
-	
-	HexDriver hex_driver0 (hex_num_0, HEX0[6:0]);
-	assign HEX0[7] = 1'b1;
+	HexDriver hex_driver0 (flag_for_dying, HEX0[7:0]);
+	//assign HEX0[7] = 1'b0;
 	
 	//fill in the hundreds digit as well as the negative sign
 	assign HEX5 = {1'b1, ~signs[1], 3'b111, ~hundreds[1], ~hundreds[1], 1'b1};
@@ -165,22 +169,59 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	 );
 
 logic collision;
-
+logic dead;
+logic LeReset;
+logic flag_for_dying;
 //instantiate a vga_controller, ball, and color_mapper here with the ports.
 
-vga_controller vga(.Clk(MAX10_CLK1_50), .Reset(Reset_h), .hs(VGA_HS), .vs(VGA_VS), .pixel_clk(VGA_Clk), 
+//in the reset_h do not or it so remove this after this test
+vga_controller vga(.Clk(MAX10_CLK1_50), .Reset(Reset_hs), .hs(VGA_HS), .vs(VGA_VS), .pixel_clk(VGA_Clk), 
 .blank(blank), .sync(sync), .DrawX(drawxsig), .DrawY(drawysig));
 
 
-sprite sprite0(.collision(collision), .red(Red), .green(Green), .blue(Blue), .Reset(Reset_h), .frame_clk(VGA_VS), .keycode(keycode), 
-.spriteX(ballxsig), .spriteY(ballysig), .spriteS(ballsizesig));
+sprite sprite0(.collision(collision), .red(Red), .green(Green), .blue(Blue), .Reset(Reset_h || LeReset), .frame_clk(VGA_VS), .keycode(keycode), 
+.spriteX(ballxsig), .spriteY(ballysig), .spriteS(ballsizesig), .dead(dead));
 
 
-zelda_example zelda( .Reset(Reset_h), .blue_debug(blue_debug), .green_debug(green_debug), .red_debug(red_debug), .collision(collision), .keycode(keycode), .spriteX(ballxsig), .spriteY(ballysig), .sprite_size(ballsizesig),  .blank(blank), .DrawX(drawxsig), .DrawY(drawysig), .vga_clk(VGA_Clk), .red(Red), .green(Green), .blue(Blue)); 
+zelda_example zelda( .Reset(Reset_h || LeReset), .blue_debug(blue_debug), 
+.green_debug(green_debug), .red_debug(red_debug), .collision(collision), 
+.keycode(keycode), .spriteX(ballxsig), .spriteY(ballysig), 
+.sprite_size(ballsizesig),  .blank(blank), .DrawX(drawxsig), 
+.DrawY(drawysig), .vga_clk(VGA_Clk), .red(Red), .green(Green),
+ .blue(Blue), .enemy_X(ballxsig2), .enemy_Y(ballysig2), 
+ .enemy_size(ballsizesig2), .dead(dead), .flag_for_dying(flag_for_dying) ); 
 	 
 	 
-	 
+//enemy_1_example enemy(.DrawX(drawxsig2), .DrawY(drawysig2), .enemyX(ballxsig2), .enemyY(ballysig2), .enemy_size(ballsizesig2), .vga_clk(VGA_Clk), .Reset(Reset_h), .red(Red), .green(Green), .blue(Blue));	 
+
+enemy_ball enemy0(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset), 
+.keycode(keycode), .enemy_X(ballxsig2), .enemy_Y(ballysig2), 
+.enemy_S(ballsizesig2), .dead(dead));
 
 
 
-endmodule
+ISDU dead0(.Clk(VGA_VS), .dead(dead), .keycode(keycode), .die_reset(LeReset));
+	
+
+
+
+
+
+
+endmodule 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
