@@ -82,6 +82,13 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	logic [9:0] drawxsig3, drawysig3, ballxsig3, ballysig3, ballsizesig3;
 	logic [7:0] Red3, Blue3, Green3;
 
+	
+	
+	
+	
+	logic [9:0] drawxsig4, drawysig4, ballxsig4, ballysig4, ballsizesig4;
+	logic [7:0] Red4, Blue4, Green4;
+
 
 //=======================================================
 //  Structural coding
@@ -181,6 +188,7 @@ logic LeReset;
 logic flag_for_dying;
 logic enemy_dead_flag;
 logic enemy1_dead_flag;
+logic enemy2_dead_flag;
 //instantiate a vga_controller, ball, and color_mapper here with the ports.
 
 //in the reset_h do not or it so remove this after this test
@@ -200,7 +208,12 @@ zelda_example zelda( .Reset(Reset_h || LeReset), .blue_debug(blue_debug),
  .blue(Blue), .enemy_X(ballxsig2), .enemy_Y(ballysig2), 
  .enemy_size(ballsizesig2), .dead(dead), .flag_for_dying(flag_for_dying)
 , .enemy_dead_flag(enemy_dead_flag), .enemy_X1(ballxsig3), .enemy_Y1(ballysig3), 
- .enemy_size1(ballsizesig3), .enemy1_dead_flag(enemy1_dead_flag)); 
+ .enemy_size1(ballsizesig3), .enemy1_dead_flag(enemy1_dead_flag),
+ .enemy_X2(ballxsig4), .enemy_Y2(ballysig4), 
+ .enemy_size2(ballsizesig4), .enemy2_dead_flag(enemy2_dead_flag)
+ 
+ 
+ ); 
 	 
 	 
 //enemy_1_example enemy(.DrawX(drawxsig2), .DrawY(drawysig2), .enemyX(ballxsig2), .enemyY(ballysig2), .enemy_size(ballsizesig2), .vga_clk(VGA_Clk), .Reset(Reset_h), .red(Red), .green(Green), .blue(Blue));	 
@@ -215,6 +228,11 @@ enemy2_ball enemy1(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset),
 .keycode(keycode), .enemy_X(ballxsig3), .enemy_Y(ballysig3), 
 .enemy_S(ballsizesig3), .dead(dead), .enemy_dead_flag(enemy1_dead_flag));
 
+
+
+enemy3_ball enemy2(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset), 
+.keycode(keycode), .enemy_X(ballxsig4), .enemy_Y(ballysig4), 
+.enemy_S(ballsizesig4), .dead(dead), .enemy_dead_flag(enemy2_dead_flag));
 
 
 

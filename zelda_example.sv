@@ -2,6 +2,7 @@ module zelda_example (
 	input logic [9:0] DrawX, DrawY, spriteX, spriteY, sprite_size, //added spriteX, spriteY, sprite_size
 	input logic [9:0] DrawX_enemy, DrawY_enemy, enemy_X, enemy_Y, enemy_size, //added for enemy 
 	input logic [9:0] DrawX_enemy1, DrawY_enemy1, enemy_X1, enemy_Y1, enemy_size1,
+	input logic [9:0] DrawX_enemy2, DrawY_enemy2, enemy_X2, enemy_Y2, enemy_size2,
 	input [7:0] keycode, 
 	input Reset,
 	input logic vga_clk, blank,
@@ -12,6 +13,7 @@ module zelda_example (
 	output logic sword_collision,
 	output logic enemy_dead_flag,
 	output logic enemy1_dead_flag,
+	output logic enemy2_dead_flag,
 	output logic [3:0] red_debug, green_debug, blue_debug
 	
 );
@@ -294,6 +296,20 @@ assign enemy_2_address = ((DrawX-enemy_X1) + (DrawY-enemy_Y1)*32);
 
 
 
+///////////////////////////////////////////////////////////////
+logic [9:0]DistX_enemy2, DistY_enemy2;
+logic [10:0] enemy_3_address;
+logic [4:0] enemy_3_q;
+logic [3:0] enemy3_red, enemy3_green, enemy3_blue;
+assign DistX_enemy2 = DrawX - enemy_X2;
+assign DistY_enemy2 = DrawY - enemy_Y2;
+assign enemy_3_address = ((DrawX-enemy_X2) + (DrawY-enemy_Y2)*32); 
+///////////////////////////////////////////////////////////
+
+
+
+
+
 
 
 
@@ -456,6 +472,26 @@ if(enemy2_red != 4'h0 && enemy2_green != 4'h0 && enemy2_blue != 4'h0)
 	
 /////////////////////////////////////////////////////////////////////	
 	
+	
+	
+	
+	
+	
+////////////////NEWER_ENEMY/////////////////////
+
+if (DistX_enemy2-3 < enemy_size2 && DistY_enemy2 - 3 < enemy_size2)
+if(enemy3_red != 4'hF && enemy3_green != 4'h6 && enemy3_blue != 4'hB)
+//if(enemy3_red != 4'hF && enemy3_green != 4'hD && enemy3_blue != 4'hC)
+	//if(enemy_dead_flag != 1)
+	begin
+	
+	red <= enemy3_red;
+	green <= enemy3_green;
+	blue <= enemy3_blue;
+	end 
+
+	
+/////////////////////////////////////////////////////////////////////	
 	
 	
 	
@@ -1298,6 +1334,421 @@ else
 enemy1_dead_flag = 0;
 	end
 
+////////////////////////////////////////////////
+
+
+
+		
+//////////////////////////////////////////////
+
+
+	if(sword_collision == 0)
+if( 
+((enemy_X2 == spriteX) && (enemy_Y2 == spriteY)) 
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 8 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 12 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 16== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 20== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 24 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 28== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 8 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 20== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 24 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 28== spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 2 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 6 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 8== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 10== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 12 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 14 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 16== spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 18 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 20== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 22== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 24 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 28== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 8 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 20== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 24 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 28== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 2 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 6 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 8== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 10== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 14== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 18== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 20 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 22== spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 + 4 == spriteY))
+|| ((enemy_X2 + 8 == spriteX) && (enemy_Y2 + 8== spriteY))
+|| ((enemy_X2 + 12 == spriteX) && (enemy_Y2 + 12== spriteY))
+||((enemy_X2 + 16== spriteX) && (enemy_Y2 + 16== spriteY))
+||((enemy_X2 + 20== spriteX) && (enemy_Y2+20  == spriteY))
+||((enemy_X2 + 24 == spriteX) && (enemy_Y2 + 24 == spriteY))
+||((enemy_X2 + 28== spriteX) && (enemy_Y2 + 28== spriteY))
+|| ((enemy_X2 + 2 == spriteX) && (enemy_Y2 + 2 == spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 + 4== spriteY))
+|| ((enemy_X2 + 6 == spriteX) && (enemy_Y2 + 6== spriteY))
+||((enemy_X2 + 8== spriteX) && (enemy_Y2 + 8== spriteY))
+||((enemy_X2 + 10== spriteX) && (enemy_Y2+10  == spriteY))
+||((enemy_X2 + 12 == spriteX) && (enemy_Y2 + 12 == spriteY))
+||((enemy_X2 + 14== spriteX) && (enemy_Y2 + 14== spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 + 4== spriteY))
+||((enemy_X2 - 8 == spriteX) && (enemy_Y2 + 8 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 + 12== spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 +16 == spriteY))
+||((enemy_X2 - 20== spriteX) && (enemy_Y2 +20== spriteY))
+||((enemy_X2 - 24 == spriteX) && (enemy_Y2 +24== spriteY))
+||((enemy_X2 - 28== spriteX) && (enemy_Y2 +28== spriteY))
+||((enemy_X2 - 2 == spriteX) && (enemy_Y2 + 2== spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 + 4 == spriteY))
+||((enemy_X2 - 6 == spriteX) && (enemy_Y2 + 6== spriteY))
+||((enemy_X2 - 8== spriteX) && (enemy_Y2 +8 == spriteY))
+||((enemy_X2 - 10== spriteX) && (enemy_Y2 +10== spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 +12== spriteY))
+||((enemy_X2 - 14== spriteX) && (enemy_Y2 +14== spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 - 4 == spriteY))
+|| ((enemy_X2 + 8 == spriteX) && (enemy_Y2 - 8== spriteY))
+|| ((enemy_X2 + 12 == spriteX) && (enemy_Y2 - 12== spriteY))
+||((enemy_X2 + 16== spriteX) && (enemy_Y2 - 16== spriteY))
+||((enemy_X2 + 20== spriteX) && (enemy_Y2-20  == spriteY))
+||((enemy_X2 + 24 == spriteX) && (enemy_Y2 - 24 == spriteY))
+||((enemy_X2 + 28== spriteX) && (enemy_Y2 - 28== spriteY))
+|| ((enemy_X2 + 2 == spriteX) && (enemy_Y2 - 2 == spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 - 4== spriteY))
+|| ((enemy_X2 + 6 == spriteX) && (enemy_Y2 - 6== spriteY))
+||((enemy_X2 + 8== spriteX) && (enemy_Y2 - 8== spriteY))
+||((enemy_X2 + 10== spriteX) && (enemy_Y2-10  == spriteY))
+||((enemy_X2 + 12 == spriteX) && (enemy_Y2 - 12 == spriteY))
+||((enemy_X2 + 14== spriteX) && (enemy_Y2 - 14 == spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 - 4== spriteY))
+||((enemy_X2 - 8 == spriteX) && (enemy_Y2 - 8 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 - 12== spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 -16 == spriteY))
+||((enemy_X2 - 20== spriteX) && (enemy_Y2 -20== spriteY))
+||((enemy_X2 - 24 == spriteX) && (enemy_Y2 -24== spriteY))
+||((enemy_X2 - 28== spriteX) && (enemy_Y2 -28== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 4 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +8  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +12 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 + 16== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 20== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 +24 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +28 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 4 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -8  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -12 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 -16== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 20== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 -24 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -28 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 2 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -4  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -6 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 -8== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 10== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 -12 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -14 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 16 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -18  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -20 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 -22== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 24== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 -26 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -28 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 2 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +4  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +6 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 + 8== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 10== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 +12 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +14== spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 + 16== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 18== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 +20 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +22== spriteY))
+
+)
+begin
+flag_for_dying <= 1;
+dead <= 1;
+end
+else 
+begin
+flag_for_dying<=0;
+//dead <= 0;
+end
+
+if(sword_collision)
+	begin
+	if( 
+((enemy_X2 == spriteX) && (enemy_Y2 == spriteY)) 
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 8 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 12 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 16== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 20== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 24 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 28== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 8 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 20== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 24 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 28== spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 2 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 6 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 8== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 10== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 12 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 14 == spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 16== spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 18 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 20== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 22== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 24 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 + 28== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 8 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 20== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 24 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 28== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 2 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 6 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 8== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 10== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 14== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 18== spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 20 == spriteX) && (enemy_Y2 == spriteY))
+||((enemy_X2 - 22== spriteX) && (enemy_Y2 == spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 + 4 == spriteY))
+|| ((enemy_X2 + 8 == spriteX) && (enemy_Y2 + 8== spriteY))
+|| ((enemy_X2 + 12 == spriteX) && (enemy_Y2 + 12== spriteY))
+||((enemy_X2 + 16== spriteX) && (enemy_Y2 + 16== spriteY))
+||((enemy_X2 + 20== spriteX) && (enemy_Y2+20  == spriteY))
+||((enemy_X2 + 24 == spriteX) && (enemy_Y2 + 24 == spriteY))
+||((enemy_X2 + 28== spriteX) && (enemy_Y2 + 28== spriteY))
+|| ((enemy_X2 + 2 == spriteX) && (enemy_Y2 + 2 == spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 + 4== spriteY))
+|| ((enemy_X2 + 6 == spriteX) && (enemy_Y2 + 6== spriteY))
+||((enemy_X2 + 8== spriteX) && (enemy_Y2 + 8== spriteY))
+||((enemy_X2 + 10== spriteX) && (enemy_Y2+10  == spriteY))
+||((enemy_X2 + 12 == spriteX) && (enemy_Y2 + 12 == spriteY))
+||((enemy_X2 + 14== spriteX) && (enemy_Y2 + 14== spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 + 4== spriteY))
+||((enemy_X2 - 8 == spriteX) && (enemy_Y2 + 8 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 + 12== spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 +16 == spriteY))
+||((enemy_X2 - 20== spriteX) && (enemy_Y2 +20== spriteY))
+||((enemy_X2 - 24 == spriteX) && (enemy_Y2 +24== spriteY))
+||((enemy_X2 - 28== spriteX) && (enemy_Y2 +28== spriteY))
+||((enemy_X2 - 2 == spriteX) && (enemy_Y2 + 2== spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 + 4 == spriteY))
+||((enemy_X2 - 6 == spriteX) && (enemy_Y2 + 6== spriteY))
+||((enemy_X2 - 8== spriteX) && (enemy_Y2 +8 == spriteY))
+||((enemy_X2 - 10== spriteX) && (enemy_Y2 +10== spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 +12== spriteY))
+||((enemy_X2 - 14== spriteX) && (enemy_Y2 +14== spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 - 4 == spriteY))
+|| ((enemy_X2 + 8 == spriteX) && (enemy_Y2 - 8== spriteY))
+|| ((enemy_X2 + 12 == spriteX) && (enemy_Y2 - 12== spriteY))
+||((enemy_X2 + 16== spriteX) && (enemy_Y2 - 16== spriteY))
+||((enemy_X2 + 20== spriteX) && (enemy_Y2-20  == spriteY))
+||((enemy_X2 + 24 == spriteX) && (enemy_Y2 - 24 == spriteY))
+||((enemy_X2 + 28== spriteX) && (enemy_Y2 - 28== spriteY))
+|| ((enemy_X2 + 2 == spriteX) && (enemy_Y2 - 2 == spriteY))
+|| ((enemy_X2 + 4 == spriteX) && (enemy_Y2 - 4== spriteY))
+|| ((enemy_X2 + 6 == spriteX) && (enemy_Y2 - 6== spriteY))
+||((enemy_X2 + 8== spriteX) && (enemy_Y2 - 8== spriteY))
+||((enemy_X2 + 10== spriteX) && (enemy_Y2-10  == spriteY))
+||((enemy_X2 + 12 == spriteX) && (enemy_Y2 - 12 == spriteY))
+||((enemy_X2 + 14== spriteX) && (enemy_Y2 - 14 == spriteY))
+||((enemy_X2 - 4 == spriteX) && (enemy_Y2 - 4== spriteY))
+||((enemy_X2 - 8 == spriteX) && (enemy_Y2 - 8 == spriteY))
+||((enemy_X2 - 12 == spriteX) && (enemy_Y2 - 12== spriteY))
+||((enemy_X2 - 16== spriteX) && (enemy_Y2 -16 == spriteY))
+||((enemy_X2 - 20== spriteX) && (enemy_Y2 -20== spriteY))
+||((enemy_X2 - 24 == spriteX) && (enemy_Y2 -24== spriteY))
+||((enemy_X2 - 28== spriteX) && (enemy_Y2 -28== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 4 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +8  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +12 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 + 16== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 20== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 +24 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +28 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 4 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -8  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -12 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 -16== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 20== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 -24 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -28 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 2 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -4  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -6 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 -8== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 10== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 -12 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -14 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 16 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -18  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -20 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 -22== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 - 24== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 -26 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 -28 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 2 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +4  == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +6 == spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 + 8== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 10== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 +12 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +14== spriteY))
+||((enemy_X2== spriteX) && (enemy_Y2 + 16== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 + 18== spriteY))
+||((enemy_X2  == spriteX) && (enemy_Y2 +20 == spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 +22== spriteY))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 2))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 4))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 6))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 8))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 10))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 12))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 14))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 16))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 18))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 20))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 22))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 24))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 26))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY - 28))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY  + 2))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY +  4))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 6))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 8))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 10))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 12))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 14))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 16))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 18))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 20))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 22))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 24))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 26))
+||((enemy_X2 == spriteX) && (enemy_Y2 == spriteY + 28))
+||((enemy_X2 + 2 == spriteX) && (enemy_Y2 == spriteY - 2))
+||((enemy_X2 +2 == spriteX) && (enemy_Y2 == spriteY - 4))
+||((enemy_X2 + 2 == spriteX) && (enemy_Y2 == spriteY - 6))
+||((enemy_X2 + 2 == spriteX) && (enemy_Y2 == spriteY - 8))
+||((enemy_X2 + 2== spriteX) && (enemy_Y2 == spriteY - 10))
+||((enemy_X2 + 2== spriteX) && (enemy_Y2 == spriteY - 12))
+||((enemy_X2 + 2== spriteX) && (enemy_Y2 == spriteY - 14))
+||((enemy_X2 + 2 == spriteX) && (enemy_Y2 == spriteY - 16))
+||((enemy_X2 + 2 == spriteX) && (enemy_Y2 == spriteY - 18))
+||((enemy_X2 + 2 == spriteX) && (enemy_Y2 == spriteY - 20))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY - 22))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY - 24))
+||((enemy_X2 + 2== spriteX) && (enemy_Y2 == spriteY - 26))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY - 28))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY  + 2))
+||((enemy_X2 + 2== spriteX) && (enemy_Y2 == spriteY +  4))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 6))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 8))
+||((enemy_X2 + 2== spriteX) && (enemy_Y2 == spriteY + 10))
+||((enemy_X2 + 2== spriteX) && (enemy_Y2 == spriteY + 12))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 14))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 16))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 18))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 20))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 22))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 24))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 26))
+||((enemy_X2+ 2 == spriteX) && (enemy_Y2 == spriteY + 28))
+||((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY - 2))
+||((enemy_X2 +4 == spriteX) && (enemy_Y2 == spriteY - 4))
+||((enemy_X2 + 4== spriteX) && (enemy_Y2 == spriteY - 6))
+||((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY - 8))
+||((enemy_X2 + 4== spriteX) && (enemy_Y2 == spriteY - 10))
+||((enemy_X2 + 4== spriteX) && (enemy_Y2 == spriteY - 12))
+||((enemy_X2 + 4== spriteX) && (enemy_Y2 == spriteY - 14))
+||((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY - 16))
+||((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY - 18))
+||((enemy_X2 + 4 == spriteX) && (enemy_Y2 == spriteY - 20))
+||((enemy_X2+ 4== spriteX) && (enemy_Y2 == spriteY - 22))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY - 24))
+||((enemy_X2 + 4== spriteX) && (enemy_Y2 == spriteY - 26))
+||((enemy_X2+ 4== spriteX) && (enemy_Y2 == spriteY - 28))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY  + 2))
+||((enemy_X2 + 4== spriteX) && (enemy_Y2 == spriteY +  4))
+||((enemy_X2+ 4== spriteX) && (enemy_Y2 == spriteY + 6))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY + 8))
+||((enemy_X2 + 4== spriteX) && (enemy_Y2 == spriteY + 10))
+||((enemy_X2 + 4== spriteX) && (enemy_Y2 == spriteY + 12))
+||((enemy_X2+ 4== spriteX) && (enemy_Y2 == spriteY + 14))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY + 16))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY + 18))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY + 20))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY + 22))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY + 24))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY + 26))
+||((enemy_X2+ 4 == spriteX) && (enemy_Y2 == spriteY + 28))
+||((enemy_X2 + 6 == spriteX) && (enemy_Y2 == spriteY - 2))
+||((enemy_X2 +6== spriteX) && (enemy_Y2 == spriteY - 4))
+||((enemy_X2 + 6== spriteX) && (enemy_Y2 == spriteY - 6))
+||((enemy_X2 + 6 == spriteX) && (enemy_Y2 == spriteY - 8))
+||((enemy_X2 + 6== spriteX) && (enemy_Y2 == spriteY - 10))
+||((enemy_X2 + 6== spriteX) && (enemy_Y2 == spriteY - 12))
+||((enemy_X2 + 6== spriteX) && (enemy_Y2 == spriteY - 14))
+||((enemy_X2 + 6 == spriteX) && (enemy_Y2 == spriteY - 16))
+||((enemy_X2 + 6 == spriteX) && (enemy_Y2 == spriteY - 18))
+||((enemy_X2 + 6 == spriteX) && (enemy_Y2 == spriteY - 20))
+||((enemy_X2+ 6== spriteX) && (enemy_Y2 == spriteY - 22))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY - 24))
+||((enemy_X2 + 6== spriteX) && (enemy_Y2 == spriteY - 26))
+||((enemy_X2+ 6== spriteX) && (enemy_Y2 == spriteY - 28))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY  + 2))
+||((enemy_X2 + 6== spriteX) && (enemy_Y2 == spriteY +  4))
+||((enemy_X2+ 6== spriteX) && (enemy_Y2 == spriteY + 6))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY + 8))
+||((enemy_X2 + 6== spriteX) && (enemy_Y2 == spriteY + 10))
+||((enemy_X2 + 6== spriteX) && (enemy_Y2 == spriteY + 12))
+||((enemy_X2+ 6== spriteX) && (enemy_Y2 == spriteY + 14))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY + 16))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY + 18))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY + 20))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY + 22))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY + 24))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY + 26))
+||((enemy_X2+ 6 == spriteX) && (enemy_Y2 == spriteY + 28))
+
+
+)
+begin
+enemy2_dead_flag = 1; 
+end
+else 
+enemy2_dead_flag = 0;
+	end
+
 
 
 
@@ -1310,6 +1761,17 @@ enemy1_dead_flag = 0;
 
 
 ////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4209,6 +4671,18 @@ knight_1_palette knight_1_palette (
 
 
 
+professor_rom professor_rom (
+	.clock   (vga_clk),
+	.address (enemy_3_address),
+	.q       (enemy_3_q)
+);
+
+professor_palette professor_palette (
+	.index (enemy_3_q),
+	.red   (enemy3_red),
+	.green (enemy3_green),
+	.blue  (enemy3_blue)
+);
 
 
 
