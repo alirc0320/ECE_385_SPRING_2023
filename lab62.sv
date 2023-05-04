@@ -242,8 +242,9 @@ zelda_example zelda( .Reset(Reset_h || LeReset), .blue_debug(blue_debug),
  .enemy_size2(ballsizesig4), .enemy2_dead_flag(enemy2_dead_flag), .color_main(color_main),
  .first_map_flag(first_map_flag), .they_all_dead(they_all_dead), .debugger(debugger),
  .debug_enemy_dead_3(debug_enemy_dead_3), .debug_enemy_dead_2(debug_enemy_dead_2),
- .debug_enemy_dead(debug_enemy_dead), .everyone_is_dead(everyone_is_dead)
- 
+ .debug_enemy_dead(debug_enemy_dead), .everyone_is_dead(everyone_is_dead),
+ .enemy_X4(ballxsig5), .enemy_Y4(ballysig5), 
+ .enemy_size4(ballsizesig5)
  
  ); 
 	 //.link_position(link_position), .link_position_Y(link_position_Y)
@@ -276,6 +277,19 @@ enemy3_ball enemy2(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset),
 .debug_enemy_dead(debug_enemy_dead)
 
 );
+
+
+
+
+enemy4_ball enemy5(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset), 
+.keycode(keycode), .enemy_X(ballxsig5), .enemy_Y(ballysig5), 
+.enemy_S(ballsizesig5) 
+);
+
+
+//
+//.enemy_dead_flag(enemy2_dead_flag),
+//.debug_enemy_dead(debug_enemy_dead)
 
 
 
