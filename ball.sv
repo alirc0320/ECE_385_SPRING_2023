@@ -643,7 +643,7 @@ module  enemy4_ball ( input Reset, frame_clk,
             enemy_Y_Motion <= 10'd0; //enemy_Y_Step;
 				enemy_X_Motion <= 10'd0; //enemy_X_Step;
 				enemy_Y_Pos <= enemy_Y_Center;
-				enemy_X_Pos <= 510;
+				enemy_X_Pos <= 300;
         end
         else 
         begin 

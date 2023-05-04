@@ -138,7 +138,7 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	logic debug;
 	assign debug = 1;
 	
-	HexDriver hex_driver0 (everyone_is_dead, HEX0[7:0]);
+	HexDriver hex_driver0 (debug_enemy_dead_4, HEX0[7:0]);
 	//assign HEX0[7] = 1'b0;
 	
 	//fill in the hundreds digit as well as the negative sign
@@ -200,6 +200,7 @@ logic flag_for_dying;
 logic enemy_dead_flag;
 logic enemy1_dead_flag;
 logic enemy2_dead_flag;
+logic enemy4_dead_flag; 
 logic [32:0] color_main;
 logic pedro; 
 logic [32:0] first_map_flag;
@@ -210,6 +211,7 @@ logic debug_enemy_dead;
 logic debug_enemy_dead_2;
 logic debug_enemy_dead_3;
 logic everyone_is_dead;
+logic debug_enemy_dead_4;
 
 //logic [32:0] link_position;
 //logic [32:0] link_position_Y;
@@ -244,7 +246,8 @@ zelda_example zelda( .Reset(Reset_h || LeReset), .blue_debug(blue_debug),
  .debug_enemy_dead_3(debug_enemy_dead_3), .debug_enemy_dead_2(debug_enemy_dead_2),
  .debug_enemy_dead(debug_enemy_dead), .everyone_is_dead(everyone_is_dead),
  .enemy_X4(ballxsig5), .enemy_Y4(ballysig5), 
- .enemy_size4(ballsizesig5)
+ .enemy_size4(ballsizesig5), .enemy4_dead_flag(enemy4_dead_flag),
+ .debug_enemy_dead_4(debug_enemy_dead_4)
  
  ); 
 	 //.link_position(link_position), .link_position_Y(link_position_Y)
@@ -283,10 +286,11 @@ enemy3_ball enemy2(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset),
 
 enemy4_ball enemy5(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset), 
 .keycode(keycode), .enemy_X(ballxsig5), .enemy_Y(ballysig5), 
-.enemy_S(ballsizesig5) 
+.enemy_S(ballsizesig5), .dead(dead), .enemy_dead_flag(enemy4_dead_flag),
+.debug_enemy_dead(debug_enemy_dead_4),
 );
 
-
+//.debug_enemy_dead(debug4_enemy_dead)
 //
 //.enemy_dead_flag(enemy2_dead_flag),
 //.debug_enemy_dead(debug_enemy_dead)
