@@ -53,6 +53,8 @@ module lab62 (
       inout    [15: 0]   ARDUINO_IO,
       inout              ARDUINO_RESET_N 
 		
+		
+	
 
 );
 
@@ -88,6 +90,12 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	
 	logic [9:0] drawxsig4, drawysig4, ballxsig4, ballysig4, ballsizesig4;
 	logic [7:0] Red4, Blue4, Green4;
+	
+	
+	
+	
+	logic [9:0] drawxsig5, drawysig5, ballxsig5, ballysig5, ballsizesig5;
+	logic [7:0] Red5, Blue5, Green5;
 
 
 //=======================================================
@@ -126,8 +134,11 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 //	logic [3:0] blue_debug;
 //	HexDriver hex_driver1 (blue_debug, HEX1[6:0]);
 //	//assign HEX1[7] = 1'b1;
+	//color_main before pedro
+	logic debug;
+	assign debug = 1;
 	
-	HexDriver hex_driver0 (flag_for_dying, HEX0[7:0]);
+	HexDriver hex_driver0 (everyone_is_dead, HEX0[7:0]);
 	//assign HEX0[7] = 1'b0;
 	
 	//fill in the hundreds digit as well as the negative sign
@@ -181,7 +192,7 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 		.keycode_export(keycode)
 		
 	 );
-
+logic debugger;
 logic collision;
 logic dead;
 logic LeReset;
@@ -189,6 +200,19 @@ logic flag_for_dying;
 logic enemy_dead_flag;
 logic enemy1_dead_flag;
 logic enemy2_dead_flag;
+logic [32:0] color_main;
+logic pedro; 
+logic [32:0] first_map_flag;
+logic [32:0] they_all_dead;
+logic flag_for_game_over;
+logic [32:0] flaggy_flag;
+logic debug_enemy_dead;
+logic debug_enemy_dead_2;
+logic debug_enemy_dead_3;
+logic everyone_is_dead;
+
+//logic [32:0] link_position;
+//logic [32:0] link_position_Y;
 //instantiate a vga_controller, ball, and color_mapper here with the ports.
 
 //in the reset_h do not or it so remove this after this test
@@ -197,8 +221,13 @@ vga_controller vga(.Clk(MAX10_CLK1_50), .Reset(Reset_hs), .hs(VGA_HS), .vs(VGA_V
 
 
 sprite sprite0(.collision(collision), .red(Red), .green(Green), .blue(Blue), .Reset(Reset_h || LeReset), .frame_clk(VGA_VS), .keycode(keycode), 
-.spriteX(ballxsig), .spriteY(ballysig), .spriteS(ballsizesig), .dead(dead));
+.spriteX(ballxsig), .spriteY(ballysig), .spriteS(ballsizesig), .dead(dead),
+.color_main(color_main), .first_map_flag(first_map_flag), .enemy_dead_flag(enemy_dead_flag),
+.enemy1_dead_flag(enemy1_dead_flag), .enemy2_dead_flag(enemy2_dead_flag)
 
+);
+//.link_position(link_position), .link_position_Y(link_position_Y)
+ 
 
 zelda_example zelda( .Reset(Reset_h || LeReset), .blue_debug(blue_debug), 
 .green_debug(green_debug), .red_debug(red_debug), .collision(collision), 
@@ -210,42 +239,43 @@ zelda_example zelda( .Reset(Reset_h || LeReset), .blue_debug(blue_debug),
 , .enemy_dead_flag(enemy_dead_flag), .enemy_X1(ballxsig3), .enemy_Y1(ballysig3), 
  .enemy_size1(ballsizesig3), .enemy1_dead_flag(enemy1_dead_flag),
  .enemy_X2(ballxsig4), .enemy_Y2(ballysig4), 
- .enemy_size2(ballsizesig4), .enemy2_dead_flag(enemy2_dead_flag)
+ .enemy_size2(ballsizesig4), .enemy2_dead_flag(enemy2_dead_flag), .color_main(color_main),
+ .first_map_flag(first_map_flag), .they_all_dead(they_all_dead), .debugger(debugger),
+ .debug_enemy_dead_3(debug_enemy_dead_3), .debug_enemy_dead_2(debug_enemy_dead_2),
+ .debug_enemy_dead(debug_enemy_dead), .everyone_is_dead(everyone_is_dead)
  
  
  ); 
-	 
+	 //.link_position(link_position), .link_position_Y(link_position_Y)
+ 
 	 
 //enemy_1_example enemy(.DrawX(drawxsig2), .DrawY(drawysig2), .enemyX(ballxsig2), .enemyY(ballysig2), .enemy_size(ballsizesig2), .vga_clk(VGA_Clk), .Reset(Reset_h), .red(Red), .green(Green), .blue(Blue));	 
 
 enemy_ball enemy0(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset), 
 .keycode(keycode), .enemy_X(ballxsig2), .enemy_Y(ballysig2), 
-.enemy_S(ballsizesig2), .dead(dead), .enemy_dead_flag(enemy_dead_flag));
+.enemy_S(ballsizesig2), .dead(dead), .enemy_dead_flag(enemy_dead_flag),
+.debug_enemy_dead(debug_enemy_dead_3)
+
+
+);
 
 
 
 enemy2_ball enemy1(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset), 
 .keycode(keycode), .enemy_X(ballxsig3), .enemy_Y(ballysig3), 
-.enemy_S(ballsizesig3), .dead(dead), .enemy_dead_flag(enemy1_dead_flag));
+.enemy_S(ballsizesig3), .dead(dead), .enemy_dead_flag(enemy1_dead_flag),
+.debug_enemy_dead(debug_enemy_dead_2)
+
+);
 
 
 
 enemy3_ball enemy2(.frame_clk(VGA_VS),.Reset(Reset_h || LeReset), 
 .keycode(keycode), .enemy_X(ballxsig4), .enemy_Y(ballysig4), 
-.enemy_S(ballsizesig4), .dead(dead), .enemy_dead_flag(enemy2_dead_flag));
+.enemy_S(ballsizesig4), .dead(dead), .enemy_dead_flag(enemy2_dead_flag),
+.debug_enemy_dead(debug_enemy_dead)
 
-
-
-
-
-
-
-
-
-
-
-
-
+);
 
 
 
@@ -256,21 +286,4 @@ ISDU dead0(.Clk(VGA_VS), .dead(dead), .keycode(keycode), .die_reset(LeReset));
 
 
 
-
 endmodule 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,14 +1,23 @@
-
-
 module  sprite ( input Reset, frame_clk,
 					input [7:0] keycode,
                output [9:0]  spriteX, spriteY, spriteS,
 					input [3:0] red, green, blue, //new stop deleting 
+					output logic [32:0] color_main,
 					input logic collision,
 					input logic dead,
+					input logic [32:0] first_map_flag, 
+					input logic right_map_so_link_should_reposition,
+					input logic positionX, positionY,
+//					input logic [32:0] link_position, 
+//					input logic [32:0] link_position_Y,
+					input logic enemy_dead_flag, enemy1_dead_flag, enemy2_dead_flag,
 					input logic [3:0] up_1_palette_red, up_1_palette_green, up_1_palette_blue
+					
 					);
-    
+					logic [32:0] link_position_Y_1;
+	logic [32:0] link_position_1;
+   logic [32:0] link_position_Y;
+	logic [32:0] link_position;
     logic [9:0] sprite_X_Pos, sprite_X_Motion, sprite_Y_Pos, sprite_Y_Motion, sprite_Size;
 	// logic [3:0] bc_red, bc_green, bc_blue;
     parameter [9:0] sprite_X_Center=320;  // Center position on the X axis
@@ -19,7 +28,10 @@ module  sprite ( input Reset, frame_clk,
     parameter [9:0] sprite_Y_Max=479;     // Bottommost point on the Y axis
     parameter [9:0] sprite_X_Step=8;      // Step size on the X axis
     parameter [9:0] sprite_Y_Step=8;      // Step size on the Y axis
+	 logic [5:0] position_flag;
+	 logic new_position_flag;
 //was 30 before sword stuff
+logic flaggy_flag;
     assign sprite_Size = 30; // assigns the value 4 as a 10-digit binary number, ie "0000000100"
    
     always_ff @ (posedge Reset or posedge frame_clk )
@@ -40,8 +52,7 @@ module  sprite ( input Reset, frame_clk,
 //				sprite_Y_Pos <= sprite_Y_Center;
 //				sprite_X_Pos <= sprite_X_Center;
 //        end
-//          
-
+//     
 
 	
         else 
@@ -49,19 +60,23 @@ module  sprite ( input Reset, frame_clk,
 				
 			
 			
-				 
+				 logic nothing;
 				
 			
 				 if ( (sprite_Y_Pos - sprite_Size) <= sprite_Y_Min )  // sprite is at the top edge, BOUNCE!
-					  sprite_Y_Motion <= sprite_Y_Step;
+					  nothing = 0;
+					  //sprite_Y_Motion <= sprite_Y_Step;
 					  
 				  else if ( (sprite_X_Pos + sprite_Size) >= sprite_X_Max )  // sprite is at the Right edge, BOUNCE!
-					  sprite_X_Motion <= (~ (sprite_X_Step) + 1'b1);  // 2's complement.
+					  	nothing = 0;
+					 //sprite_X_Motion <= (~ (sprite_X_Step) + 1'b1);  // 2's complement.
 					  
 				 else if ( (sprite_X_Pos - sprite_Size) <= sprite_X_Min )  // sprite is at the Left edge, BOUNCE!
-					  sprite_X_Motion <= sprite_X_Step;
+					  nothing = 0;
+					  //sprite_X_Motion <= sprite_X_Step;
 					  //added this begin
 				 else begin
+			
 					  sprite_Y_Motion <= sprite_Y_Motion;  // sprite is somewhere in the middle, don't bounce, just keep moving
 					  
 				 
@@ -73,8 +88,11 @@ module  sprite ( input Reset, frame_clk,
 				 
 			if (collision)
 					begin			
+			if(keycode != 8'h07 || keycode !=	8'h16 ||keycode !=	8'h1A )
+					begin
 					sprite_X_Motion <= 0;
-					sprite_Y_Motion <= 0;
+				sprite_Y_Motion <= 0;
+				end
 				 end
 								
 							  end
@@ -86,12 +104,14 @@ module  sprite ( input Reset, frame_clk,
 				
 				
 			if (collision)
-					begin			
+					begin
+					if(keycode != 8'h04 || keycode !=	8'h16 ||keycode !=	8'h1A )
+					begin
 					sprite_X_Motion <= 0;
-					sprite_Y_Motion <= 0;
-				 end
+				sprite_Y_Motion <= 0;
+				end
 				  
-	
+	end
 							 
 							  end
 
@@ -103,10 +123,12 @@ module  sprite ( input Reset, frame_clk,
 			
 			if (collision)
 					begin			
+				if(keycode != 8'h07 || keycode !=	8'h04 ||keycode !=	8'h1A )
+					begin
 					sprite_X_Motion <= 0;
-					sprite_Y_Motion <= 0;
-				 end
-							 
+				sprite_Y_Motion <= 0;
+				end
+							 end
 							  
 							 end
 							  
@@ -114,13 +136,20 @@ module  sprite ( input Reset, frame_clk,
 					        sprite_Y_Motion <= -2;//W
 							  sprite_X_Motion <= 0;
 							   
-				if (collision)
+			if (collision)
 					begin			
+				
+				 
+					if(keycode != 8'h07 || keycode !=	8'h16 ||keycode !=	8'h04 )
+					begin
 					sprite_X_Motion <= 0;
-					sprite_Y_Motion <= 0;
-				 end
-							
-							 end	  
+				sprite_Y_Motion <= 0;
+				end
+			end
+							 end	
+		
+
+		
 					default: ;
 			   endcase
 				//check if sprite is touching a certain color and if it is then stop
@@ -132,7 +161,75 @@ module  sprite ( input Reset, frame_clk,
 				
 				
 				 end//added this end
-				 
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		  
+			color_main = 8'h0B; 
+			
+				if(spriteX > 590 || sprite_X_Pos > 590)
+					begin
+	
+						position_flag = 2'b11;
+					end
+					
+					
+   link_position_Y <= 200;
+	link_position <= 60;
+	link_position_Y_1 <= 230;
+  link_position_1   <= 560;
+	
+				//stop deleting
+				if(position_flag == 2'b11)
+					begin
+					color_main = 8'h0A;
+			   link_position_Y <=(link_position_Y + sprite_Y_Motion) ;
+				link_position <= (link_position + sprite_X_Motion);
+            sprite_Y_Pos <=(link_position_Y + sprite_Y_Motion) ;
+				sprite_X_Pos <= (link_position + sprite_X_Motion);
+				
+					end
+					else
+				begin	 
+				 sprite_Y_Pos <= (sprite_Y_Pos + sprite_Y_Motion);  // Update sprite position
+				 sprite_X_Pos <= (sprite_X_Pos + sprite_X_Motion);
+				position_flag = 2'b00;  
+			end
+			
+					
+
+				
+	
+	if(color_main ==  8'h0A)		
+		begin
+		
+		 if(spriteX < 60 || sprite_X_Pos < 60)
+					begin
+						position_flag = 2'b10; 
+					end
+		end
+		
+				
+		if(position_flag == 2'b10)
+					begin
+					//color_main = 8'h0A;
+			   link_position_Y_1 <=(link_position_Y_1 + sprite_Y_Motion) ;
+				link_position_1 <= (link_position_1 + sprite_X_Motion);
+            sprite_Y_Pos <=(link_position_Y_1 + sprite_Y_Motion) ;
+				sprite_X_Pos <= (link_position_1 + sprite_X_Motion);
+					end
+					
+					
+				
+				
+				
+				
 				
 				 
 				 
@@ -145,20 +242,24 @@ module  sprite ( input Reset, frame_clk,
 				
 				
 				 
-				 
-				 sprite_Y_Pos <= (sprite_Y_Pos + sprite_Y_Motion);  // Update sprite position
-				 sprite_X_Pos <= (sprite_X_Pos + sprite_X_Motion);
-			
-			
-			
+//				 
+//				 sprite_Y_Pos <= (sprite_Y_Pos + sprite_Y_Motion);  // Update sprite position
+//				 sprite_X_Pos <= (sprite_X_Pos + sprite_X_Motion);
+//			
+//			
+//   
+    
+		
+		
+		
 		end  
     end
        
     assign spriteX = sprite_X_Pos;
    
     assign spriteY = sprite_Y_Pos;
-   
-    assign spriteS = sprite_Size;
+	 
+  assign spriteS = sprite_Size;
     
 
 endmodule
@@ -167,6 +268,7 @@ module  enemy_ball ( input Reset, frame_clk,
 					input [7:0] keycode,
 					input  dead, 
 					input enemy_dead_flag,
+					output logic debug_enemy_dead,
                output [9:0]  enemy_X, enemy_Y, enemy_S );
     
     logic [9:0] enemy_X_Pos, enemy_X_Motion, enemy_Y_Pos, enemy_Y_Motion, enemy_Size;
@@ -229,11 +331,23 @@ module  enemy_ball ( input Reset, frame_clk,
 					 else if (enemy_dead_flag == 1)
 					 begin
 //					 // enemy_X_Motion <= 10;
-					 //enemy_X_Motion <= 0;
-					 //enemy_Y_Motion <= 0;
+					 
 					 enemy_Y_Pos = 500;
-					 enemy_X_Pos = 500; 
+					// enemy_X_Pos = 500; 
+					 enemy_X_Motion <= 0;
+					 enemy_Y_Motion <= 0;
 						end
+						
+						
+						
+						
+							  
+			  if(enemy_Y_Pos == 500)
+			  debug_enemy_dead = 1;
+			  else if (enemy_Y_Pos != 500)
+			  debug_enemy_dead = 0;
+					
+					
 			  
 				 else begin
 					  enemy_Y_Motion <= enemy_Y_Motion;  // enemy is somewhere in the middle, don't bounce, just keep moving
@@ -285,6 +399,7 @@ module  enemy2_ball ( input Reset, frame_clk,
 					input [7:0] keycode,
 					input  dead, 
 					input enemy_dead_flag,
+					output logic debug_enemy_dead,
                output [9:0]  enemy_X, enemy_Y, enemy_S );
     
     logic [9:0] enemy_X_Pos, enemy_X_Motion, enemy_Y_Pos, enemy_Y_Motion, enemy_Size;
@@ -319,7 +434,7 @@ module  enemy2_ball ( input Reset, frame_clk,
 				 if ( (enemy_Y_Pos + enemy_Size) >= enemy_Y_Max )  // enemy is at the bottom edge, BOUNCE!
 					  enemy_Y_Motion <= (~ (enemy_Y_Step) + 1'b1);  // 2's complement.
 					  
-				 else if ( (enemy_Y_Pos - enemy_Size) <= enemy_Y_Min )  // enemy is at the top edge, BOUNCE!
+				 if ( (enemy_Y_Pos - enemy_Size) <= enemy_Y_Min )  // enemy is at the top edge, BOUNCE!
 					  enemy_Y_Motion <= enemy_Y_Step;
 				 	  
 //				  else if ( (enemy_X_Pos + enemy_Size) >= enemy_X_Max ) begin // enemy is at the Right edge, BOUNCE!
@@ -334,13 +449,23 @@ module  enemy2_ball ( input Reset, frame_clk,
 
 					//  end
 					  
-					 else if (enemy_dead_flag == 1)
+					 if (enemy_dead_flag == 1)
 					 begin
 					 
 					enemy_X_Pos = 700;
 					enemy_Y_Motion <= 0;
 					enemy_X_Motion <= 0;
 					end
+					
+					  
+			  if(enemy_X_Pos == 700)
+			  debug_enemy_dead = 1;
+			  else if (enemy_X_Pos != 700)
+			  debug_enemy_dead = 0;
+					
+					
+					
+					
 			  
 			  
 				 else begin
@@ -384,6 +509,7 @@ module  enemy3_ball ( input Reset, frame_clk,
 					input [7:0] keycode,
 					input  dead, 
 					input enemy_dead_flag,
+					output logic debug_enemy_dead,
                output [9:0]  enemy_X, enemy_Y, enemy_S );
     
     logic [9:0] enemy_X_Pos, enemy_X_Motion, enemy_Y_Pos, enemy_Y_Motion, enemy_Size;
@@ -418,7 +544,7 @@ module  enemy3_ball ( input Reset, frame_clk,
 				 if ( (enemy_Y_Pos + enemy_Size) >= enemy_Y_Max )  // enemy is at the bottom edge, BOUNCE!
 					  enemy_Y_Motion <= (~ (enemy_Y_Step) + 1'b1);  // 2's complement.
 					  
-				 else if ( (enemy_Y_Pos - enemy_Size) <= enemy_Y_Min )  // enemy is at the top edge, BOUNCE!
+				  if ( (enemy_Y_Pos - enemy_Size) <= enemy_Y_Min )  // enemy is at the top edge, BOUNCE!
 					  enemy_Y_Motion <= enemy_Y_Step;
 				 	  
 //				  else if ( (enemy_X_Pos + enemy_Size) >= enemy_X_Max ) begin // enemy is at the Right edge, BOUNCE!
@@ -433,13 +559,20 @@ module  enemy3_ball ( input Reset, frame_clk,
 
 					//  end
 					  
-					 else if (enemy_dead_flag == 1)
+					 if (enemy_dead_flag == 1)
 					 begin
 					 
 					enemy_X_Pos = 700;
 					enemy_Y_Motion <= 0;
 					enemy_X_Motion <= 0;
 					end
+			  
+			  
+			  if(enemy_X_Pos == 700)
+			  debug_enemy_dead = 1;
+			  else if (enemy_X_Pos != 700)
+			  debug_enemy_dead = 0;
+			  
 			  
 			  
 				 else begin
@@ -469,3 +602,9 @@ module  enemy3_ball ( input Reset, frame_clk,
     
 
 endmodule
+
+
+
+
+
+

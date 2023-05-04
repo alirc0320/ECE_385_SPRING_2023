@@ -5,6 +5,7 @@ module zelda_example (
 	input logic [9:0] DrawX_enemy2, DrawY_enemy2, enemy_X2, enemy_Y2, enemy_size2,
 	input [7:0] keycode, 
 	input Reset,
+	input [32:0] color_main,
 	input logic vga_clk, blank,
    output logic [3:0] red, green, blue, // ouput
 	output logic collision,
@@ -14,8 +15,23 @@ module zelda_example (
 	output logic enemy_dead_flag,
 	output logic enemy1_dead_flag,
 	output logic enemy2_dead_flag,
-	output logic [3:0] red_debug, green_debug, blue_debug
+	output logic enemy4_dead_flag,
+	output logic pedro,
+	output logic positionX, positionY,
+	output logic right_map_so_link_should_reposition,
+	output logic [32:0] first_map_flag,
+	output logic [32:0] second_map_flag,
+//	output logic [32:0] link_position,
+//	output logic [32:0] link_position_Y,
+	output logic [3:0] red_debug, green_debug, blue_debug,
+	output logic debugger,
+ output logic everyone_is_dead,
+ input logic debug_enemy_dead,
+ input logic debug_enemy_dead_2,
+ input logic debug_enemy_dead_3,
 	
+	output logic [32:0] they_all_dead
+			
 );
 
 logic [10:0] rom_address;
@@ -27,6 +43,7 @@ logic [9:0]  zelda_right_2_rom_address;
 logic [17:0] background_col_rom_address;
 logic [17:0] final_bc_address;
 logic pink;
+logic link_should_not_be_on_title_screen;
 
 
 /////////////////////////////////////////////////////////////////
@@ -308,11 +325,28 @@ assign enemy_3_address = ((DrawX-enemy_X2) + (DrawY-enemy_Y2)*32);
 
 
 
+
+
+
+
+
 /////////////////////////////////////////////////////////////////////////
 logic [17:0] background_2_address;
 logic [5:0] background_2_q;
 logic [3:0] background_2_red, background_2_green, background_2_blue;
-assign background_2_address = ((DrawX * 300) / 640) + (((DrawY * 300) / 480) * 300);
+assign background_2_address = ((DrawX * 200) / 640) + (((DrawY * 200) / 480) * 200);
+///////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////
+logic [15:0] title_address;
+logic [4:0] title_q;
+logic [3:0] title_red, title_green, title_blue;
+assign title_address = ((DrawX * 200) / 640) + (((DrawY * 200) / 480) * 200);
 ///////////////////////////////////////////////////////////////////////////
 
 
@@ -350,7 +384,7 @@ assign rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
 assign right_1_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
 assign left_1_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
 assign zelda_right_2_rom_address = ((DrawX-spriteX) + (DrawY-spriteY)*32);
-assign final_bc_address = ((DrawX * 500) / 640) + (((DrawY * 500) / 480) * 500); 
+assign final_bc_address = ((DrawX * 200) / 640) + (((DrawY * 200) / 480) * 200); 
 logic sprite_on;
 logic up, right, down, left;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -396,6 +430,7 @@ logic flag;
 // similar to guard_control module set up
 always@(posedge vga_clk)
 begin
+	
 	if(flag) 
 		count <= 0;
 	
@@ -430,57 +465,200 @@ begin
 end	
 
 
-always_ff @ (posedge vga_clk)
-
-	
-	
 
 
 
-begin
+///////////////////////new
 
-red <= 4'h0; //default black 
-	green <= 4'h0; //default black 
-	blue <= 4'h0; //default black 
-	if (DrawX == 0 && DrawY == 0)
-		collision <= 0;	
-//stop deleting
-	
-	if(blank)
+	enum logic [2:0] {  Start,
+							Main,
+							Menu,
+							Left,
+							Right,
+							Boss
+							}   State, Next_state;
+							
+							
+		
+	always_ff @ (posedge vga_clk or posedge Reset)
 	begin
-		   red <= final_bc_red; //if blank draw background
-			green <= final_bc_green;
-			blue <= final_bc_blue; 
+		if (Reset) 
+			State <= Start;
+		else 
+			State <= Next_state;
 	end
 
+////////////////////////new
 
-	
-	
-	
-	
-////////////////NEW_ENEMY/////////////////////
 
-if (DistX_enemy1-3 < enemy_size1 && DistY_enemy1 - 3 < enemy_size1)
-if(enemy2_red != 4'h0 && enemy2_green != 4'h0 && enemy2_blue != 4'h0)
-	//if(enemy_dead_flag != 1)
-	begin
-	
-	red <= enemy2_red;
-	green <= enemy2_green;
-	blue <= enemy2_blue;
-	end 
 
-	
-/////////////////////////////////////////////////////////////////////	
-	
-	
-	
-	
-	
-	
-////////////////NEWER_ENEMY/////////////////////
 
-if (DistX_enemy2-3 < enemy_size2 && DistY_enemy2 - 3 < enemy_size2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+always_ff @ (posedge vga_clk)
+
+begin
+//
+//red <= 4'h0; //default black 
+//	green <= 4'h0; //default black 
+//	blue <= 4'h0; //default black 
+//	if (DrawX == 0 && DrawY == 0)
+//		collision <= 0;	
+////stop deleting
+//	
+//	if(blank)
+//	begin
+//		   red <= final_bc_red;
+//			green <= final_bc_green;
+//			blue <= final_bc_blue; 
+//	end
+
+ if(debug_enemy_dead == 1 && debug_enemy_dead_2 == 1 && debug_enemy_dead_3 == 1)
+ everyone_is_dead = 1;
+ else
+ everyone_is_dead = 0;
+
+
+
+
+
+
+	// Default next state is staying at current state
+	Next_state = State;
+	// Default controls signal values
+	red = 0;
+	green = 0;
+	blue = 0;
+	 
+//	BallXCenter = 645;
+//	BallYCenter = 490;
+	unique case (State)
+		Start :
+			if(keycode == 8'h28) 
+			  
+			 begin
+			 pedro <=1;
+				Next_state = Main;
+				end
+				
+		Main :
+			begin
+			Next_state = Menu;
+			pedro <=1;
+	end
+		Menu :
+			if(color_main == 8'h0A)
+			begin
+					Next_state = Right;
+					pedro <= 1;
+			end
+				
+				else
+				begin
+					Next_state = Menu;
+					pedro <= 1;
+				end
+			
+	
+		
+		Right:
+		 
+			if(color_main != 8'h0A)
+				Next_state = Menu;
+			else 
+			begin
+				Next_state = Right;
+				pedro <= 1;
+				end
+		
+				
+		default: ;
+			
+	endcase
+	
+	case (State)
+		Start: 
+			begin
+			link_should_not_be_on_title_screen = 0; 
+			if(blank)
+			begin
+				red = title_red;
+				green = title_green;
+				blue = title_blue;
+				
+				end
+				end
+//				BallXCenter = 645;
+//				BallYCenter = 490;
+			
+		Main:
+			begin 
+//			link_position = 320;
+//			link_position_Y = 240;	
+			link_should_not_be_on_title_screen = 1;
+		right_map_so_link_should_reposition = 0;	
+			first_map_flag = 2'b01;
+			second_map_flag = 2'b11;
+			if(blank)
+			begin
+				red = final_bc_red;
+				green = final_bc_green;
+				blue = final_bc_blue;
+				end
+				
+				
+	
+if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
+begin
+if(blank)
+begin
+red <= 4'hE; 
+green <= 4'hD;
+blue <= 4'hA;
+end
+end
+
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+begin
+if(blank)
+begin
+red <= 4'hE; 
+green <= 4'hD;
+blue <= 4'hA;
+end
+end
+				
+				if(first_map_flag == 2'b01)
+			if (DistX_enemy2-3 < enemy_size2 && DistY_enemy2 - 3 < enemy_size2)
 if(enemy3_red != 4'hF && enemy3_green != 4'h6 && enemy3_blue != 4'hB)
 //if(enemy3_red != 4'hF && enemy3_green != 4'hD && enemy3_blue != 4'hC)
 	//if(enemy_dead_flag != 1)
@@ -489,17 +667,96 @@ if(enemy3_red != 4'hF && enemy3_green != 4'h6 && enemy3_blue != 4'hB)
 	red <= enemy3_red;
 	green <= enemy3_green;
 	blue <= enemy3_blue;
+	end 	
+	
+	
+	if(first_map_flag == 2'b01)
+	if (DistX_enemy1-3 < enemy_size1 && DistY_enemy1 - 3 < enemy_size1)
+if(enemy2_red != 4'h0 && enemy2_green != 4'h0 && enemy2_blue != 4'h0)
+	//if(enemy_dead_flag != 1)
+	begin
+	
+	red <= enemy2_red;
+	green <= enemy2_green;
+	blue <= enemy2_blue;
 	end 
+	
+	if(first_map_flag == 2'b01)
+if (DistX_enemy-3 < enemy_size && DistY_enemy - 3 < enemy_size)
+if(enemy1_red != 4'hF && enemy1_green != 4'hF && enemy1_blue != 4'hF)	
+	begin
+	red <= enemy1_red;
+	green <= enemy1_green;
+	blue <= enemy1_blue;
+	end 
+	
+else if(enemy_dead_flag == 1)
+begin
+red <= final_bc_red;
+	green <= final_bc_green;
+	blue <= final_bc_blue;
+	end
+
+				
+				end
+//				BallXCenter = 320;
+//				BallYCenter = 240;
+			
+		Menu: 
+			begin 
+//			link_position = 320;
+//			link_position_Y = 240;	
+			link_should_not_be_on_title_screen = 1;
+		right_map_so_link_should_reposition = 0;		
+			first_map_flag = 2'b01; 
+			second_map_flag = 2'b11;
+			if(blank)
+			begin
+				red = final_bc_red;
+				green = final_bc_green;
+				blue = final_bc_blue;
+			end
+			
+			
+	
+if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
+begin
+red <= 4'hE; 
+green <= 4'hD;
+blue <= 4'hA;
+end
+
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+begin
+red <= 4'hE; 
+green <= 4'hD;
+blue <= 4'hA;
+end
+
 
 	
-/////////////////////////////////////////////////////////////////////	
+			if (DistX_enemy2-3 < enemy_size2 && DistY_enemy2 - 3 < enemy_size2)
+if(enemy3_red != 4'hF && enemy3_green != 4'h6 && enemy3_blue != 4'hB)
+//if(enemy3_red != 4'hF && enemy3_green != 4'hD && enemy3_blue != 4'hC)
+	//if(enemy_dead_flag != 1)
+	begin
+	
+	red <= enemy3_red;
+	green <= enemy3_green;
+	blue <= enemy3_blue;
+	end 	
+	
+	if (DistX_enemy1-3 < enemy_size1 && DistY_enemy1 - 3 < enemy_size1)
+if(enemy2_red != 4'h0 && enemy2_green != 4'h0 && enemy2_blue != 4'h0)
+	//if(enemy_dead_flag != 1)
+	begin
+	
+	red <= enemy2_red;
+	green <= enemy2_green;
+	blue <= enemy2_blue;
+	end 
 	
 	
-	
-	
-	
-////////////////ENEMY/////////////////////
-
 if (DistX_enemy-3 < enemy_size && DistY_enemy - 3 < enemy_size)
 if(enemy1_red != 4'hF && enemy1_green != 4'hF && enemy1_blue != 4'hF)	
 	begin
@@ -513,12 +770,152 @@ red <= final_bc_red;
 	green <= final_bc_green;
 	blue <= final_bc_blue;
 	end
+			
+			
+			end
+		
+		Right:
+			begin
+			
+			
+			right_map_so_link_should_reposition = 1;	
+			first_map_flag = 2'b11;
+			second_map_flag = 2'b01;
+			if(blank)
+			begin
+				red = background_2_red;
+				green = background_2_green;
+				blue = background_2_blue;
+				
+end
+
+
+	
+if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+begin
+if(blank)
+begin
+red <= 4'hE; 
+green <= 4'hD;
+blue <= 4'hA;
+end
+end
+
+
+
+	
+if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+begin
+if(blank)
+begin
+red <= 4'hE; 
+green <= 4'hD;
+blue <= 4'hA;
+end
+end
+
+
+	
+if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+begin
+if(blank)
+begin
+red <= 4'hE; 
+green <= 4'hD;
+blue <= 4'hA;
+end
+end
+
+
+
+	
+if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+begin
+if(blank)
+begin
+red <= 4'hE; 
+green <= 4'hD;
+blue <= 4'hA;
+end
+end
+
+
+
+
+
+				
+				
+				
+				
+				end
+		
+			
+		
+	
+	
+	default: ;
+	
+	endcase
+	
+	
+	
+	
+////////////////NEW_ENEMY/////////////////////
+
+// 
+
+	
 /////////////////////////////////////////////////////////////////////	
 	
 	
 	
 	
+	
+	
+////////////////NEWER_ENEMY/////////////////////
+
+//if (DistX_enemy2-3 < enemy_size2 && DistY_enemy2 - 3 < enemy_size2)
+//if(enemy3_red != 4'hF && enemy3_green != 4'h6 && enemy3_blue != 4'hB)
+////if(enemy3_red != 4'hF && enemy3_green != 4'hD && enemy3_blue != 4'hC)
+//	//if(enemy_dead_flag != 1)
+//	begin
+//	
+//	red <= enemy3_red;
+//	green <= enemy3_green;
+//	blue <= enemy3_blue;
+//	end 
+
+	
+/////////////////////////////////////////////////////////////////////	
+	
+	
+	
+	
+	
+	
+////////////////ENEMY/////////////////////
+//
+//if (DistX_enemy-3 < enemy_size && DistY_enemy - 3 < enemy_size)
+//if(enemy1_red != 4'hF && enemy1_green != 4'hF && enemy1_blue != 4'hF)	
+//	begin
+//	red <= enemy1_red;
+//	green <= enemy1_green;
+//	blue <= enemy1_blue;
+//	end 
+//else if(enemy_dead_flag == 1)
+//begin
+//red <= final_bc_red;
+//	green <= final_bc_green;
+//	blue <= final_bc_blue;
+//	end
+/////////////////////////////////////////////////////////////////////	
+	
+	
+	
+
+	if(first_map_flag == 2'b01)
 	if(sword_collision == 0)
+	
 if( 
 ((enemy_X == spriteX) && (enemy_Y == spriteY)) 
 || ((enemy_X + 4 == spriteX) && (enemy_Y == spriteY))
@@ -920,15 +1317,21 @@ if(sword_collision)
 )
 begin
 enemy_dead_flag = 1; 
+
 end
 else  
+//enemy_dead_flag = 0;
+
+
 enemy_dead_flag = 0;
 	end
 		
 //////////////////////////////////////////////
 
-
+	
+	if(first_map_flag == 2'b01)
 	if(sword_collision == 0)
+	
 if( 
 ((enemy_X1 == spriteX) && (enemy_Y1 == spriteY)) 
 || ((enemy_X1 + 4 == spriteX) && (enemy_Y1 == spriteY))
@@ -1341,8 +1744,7 @@ enemy1_dead_flag = 0;
 
 		
 //////////////////////////////////////////////
-
-
+if(first_map_flag == 2'b01)
 	if(sword_collision == 0)
 if( 
 ((enemy_X2 == spriteX) && (enemy_Y2 == spriteY)) 
@@ -1753,16 +2155,7 @@ enemy2_dead_flag = 0;
 
 
 
-
-
-
-
-
-
-
-
-////////////////////////////////////////////////
-
+//////////////////////////////////////////////////
 
 
 
@@ -1791,28 +2184,28 @@ enemy2_dead_flag = 0;
 
 ///////////////////////////////////////////
 
-
-	
-if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-begin
-red <= 4'hE; 
-green <= 4'hD;
-blue <= 4'hA;
-end
-
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-begin
-red <= 4'hE; 
-green <= 4'hD;
-blue <= 4'hA;
-end
-
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-begin
-red <= 4'hE; 
-green <= 4'hD;
-blue <= 4'hA;
-end
+//
+//	
+//if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
+//begin
+//red <= 4'hE; 
+//green <= 4'hD;
+//blue <= 4'hA;
+//end
+//
+//	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+//begin
+//red <= 4'hE; 
+//green <= 4'hD;
+//blue <= 4'hA;
+//end
+//
+//	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
+//begin
+//red <= 4'hE; 
+//green <= 4'hD;
+//blue <= 4'hA;
+//end
 	// Maintain position at default state
 	next_state = cur_state;
 	
@@ -2460,6 +2853,8 @@ end
 	not_moving:
 		
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 	if (DistX < sprite_size && DistY < sprite_size)
 	if(final_down2_red != 4'hF && final_down2_green != 4'hF && final_down2_blue != 4'hF )
 	 begin
@@ -2472,28 +2867,24 @@ end
 		green <= final_down2_green;
 		blue <= final_down2_blue;	
 		//instead of drawx, check boundaries 
-	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
-	begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-	collision <= 1;
 	
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-	collision <= 1;
-	end	
 	
 	end
 		
 			
 		end
+		
 	
+	
+	
+	end//
 	
 	
 	not_movingdown:
 		
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		right = 0;
 		up = 0; 
@@ -2507,23 +2898,14 @@ end
 		green <= final_down2_green;
 		blue <= final_down2_blue;	
 		//instead of drawx, check boundaries 
-	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
-	begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-	collision <= 1;
 	
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-	collision <= 1;
-	end	
 	
 	end
 else 
 down = 0; 	
 			
 		end
+		end//
 	
 	
 	
@@ -2531,6 +2913,8 @@ down = 0;
 	not_movingleft:
 		
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		right = 0;
 	 left = 1;
@@ -2546,28 +2930,20 @@ down = 0;
 		
 		//if(spriteX == DrawX && spriteY == DrawY) 
 		//if((sprite_size == DrawX) && (sprite_size == DrawY))
-		if ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28 )))
-		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-	collision <= 1;
-	end	 
+			 
 
 	end
 	
 			
 		end
-		
+	end	
 		
 		
 	not_movingright:
 		
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		right = 1;
 		up = 0;
@@ -2579,25 +2955,18 @@ down = 0;
 		red <= final_right2_red;
 		green <= final_right2_green;
 		blue <= final_right2_blue;
-		if ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 28 )))
-		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-	collision <= 1;
-	end	
+		
 
 	end	
 			
+		end
 		end
 	
 	not_movingup:
 		
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		right = 0;
 		up = 1; 
@@ -2611,29 +2980,21 @@ down = 0;
 		green <= final_up2_green;
 		blue <= final_up2_blue;
 		
-		if((spriteX + (sprite_size/2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY))
-		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-	collision <= 1;
-	end	
+		
 
 	end
 else 
 up = 0;	
 		end
-	
+	end
 	
 	
 	
 	// add first motion palette RGB
 	s_leftone:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(left1_red != 4'h0 && left1_green != 4'h0 && left1_blue != 4'h0 )
@@ -2655,7 +3016,9 @@ up = 0;
 		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 	 		) 
 	
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -2665,13 +3028,50 @@ up = 0;
 	collision <= 1;
 	end	 
 
+	if(keycode != 8'h04)
+	collision <= 0;
 	end
-	else 
-	left = 0;
-		end
+	///////////////////////////
+	if ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY)) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY)) ||
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 16 ))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 12 ))) ||
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 8 ))) ||	((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 4 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-8) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-12) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-16) == DrawX) && (spriteY + (sprite_size - 28 ))) ||	((spriteX + (sprite_size-20) == DrawX) && (spriteY + (sprite_size - 28 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 	 		) 
+	
+		begin
+	if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end		
+
+	if(keycode != 8'h04)
+	collision <= 0;
+	end
+	
+	//////////////////////////////
+	end //ends the coloring
+
 		
+		
+		
+		end
+		end
 	s_lefttwo:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(left1_red != 4'h0 && left1_green != 4'h0 && left1_blue != 4'h0 )
@@ -2692,7 +3092,9 @@ up = 0;
 		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 	 		) 
 	
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -2701,14 +3103,51 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	 
-
+	if(keycode != 8'h04)
+	collision <= 0;
 	end
-	else left = 0;
-		end
+	///////////////////////
+		
+		
+		if ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28 )) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 24 ))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 20 ))) ||
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 16 ))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 12 ))) ||
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 8 ))) ||	((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 4 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-8) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-12) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-16) == DrawX) && (spriteY + (sprite_size - 28 ))) ||	((spriteX + (sprite_size-20) == DrawX) && (spriteY + (sprite_size - 28 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 	 		) 
 	
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	 
+	if(keycode != 8'h04)
+	collision <= 0;
+	end
+	
+		
+		
+		
+	//////////////////////////	
+		end//ends the coloring
+		end
+	end
    // add second motion palette RGB	
 	s_leftthree:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX - 3 < sprite_size && DistY - 3   < sprite_size)
 	if(left2_red != 4'hF && left2_green != 4'hF && left2_blue != 4'hF )
@@ -2730,7 +3169,9 @@ up = 0;
 		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 			) 
 	
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -2739,14 +3180,48 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	 
-
+	if(keycode != 8'h04)
+	collision <= 0;
 	end
-	else 
-	left = 0;
-		end
+	//////////////////////////////////////////
 		
+	if( 	((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 24 ))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 20 ))) ||
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 16 ))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 12 ))) ||
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 8 ))) ||	((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 4 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-8) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-12) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-16) == DrawX) && (spriteY + (sprite_size - 28 ))) ||	((spriteX + (sprite_size-20) == DrawX) && (spriteY + (sprite_size - 28 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 			) 
+	
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	 
+	if(keycode != 8'h04)
+	collision <= 0;
+	end	
+		
+		
+	/////////////////////////////////////////	
+		end //ends the coloring 
+		end
+		end
+	
 	s_leftfour:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX - 3 < sprite_size && DistY - 3   < sprite_size)
 	if(left2_red != 4'hF && left2_green != 4'hF && left2_blue != 4'hF )
@@ -2771,7 +3246,9 @@ up = 0;
 		
 		
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -2780,15 +3257,58 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	 
-
+	if(keycode != 8'h04)
+	collision <= 0;
 	end
-	else 
-	left = 0; 
+	/////////////////////////////////////////// 
+		if( 	((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 24 ))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 20 ))) ||
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 16 ))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 12 ))) ||
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 8 ))) ||	((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 4 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size))) || ((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-8) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-12) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-16) == DrawX) && (spriteY + (sprite_size - 28 ))) ||	((spriteX + (sprite_size-20) == DrawX) && (spriteY + (sprite_size - 28 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 	 		) 
+	
+		
+		
+		
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	 
+	if(keycode != 8'h04)
+	collision <= 0;
+	end
+		
+		
+		
+		
+	///////////////////////////////////////////////////	
+		end //ends the coloring 
 		end
+		end
+		
+		
+		
+		
+		
 		
 	// add first motion palette RGB		
 	s_rightone:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		right = 1;
 		if (DistX < sprite_size && DistY < sprite_size)
@@ -2886,7 +3406,9 @@ up = 0;
 		)
 		
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -2895,13 +3417,129 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-
+	if(keycode != 8'h07)
+	collision <= 0;
 	end
+	/////////////////////////////////////////////////
+	if (
+		(spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY)
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		)
+		
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
 	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+	if(keycode != 8'h07)
+	collision <= 0;
+	end
+		
+	/////////////////////////////////////////////////	
+		end //ends the coloring 
 		end
+		end
+		
+		
+		
 		
 	s_righttwo:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		right = 1;
 		if (DistX < sprite_size && DistY < sprite_size)
@@ -2999,6 +3637,8 @@ up = 0;
 		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
 		)
 		begin
+		if(first_map_flag == 2'b01)
+	begin
 	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
 	collision <= 1;
 	
@@ -3008,14 +3648,126 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
+if(keycode != 8'h07)
+	collision <= 0;
+	end 
+	/////////////////////////////////////////////////////
+	if (
+		(spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY)
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		)
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
 
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+if(keycode != 8'h07)
+	collision <= 0;
 	end 
 	
+	//////////////////////////////////////////////////////
+		end //ends coloring 
+		end
 		end
 		
    // add second motion palette RGB
 	s_rightthree:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		right = 1;
 	if (DistX< sprite_size && DistY< sprite_size)
@@ -3113,7 +3865,9 @@ up = 0;
 		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
 		)
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3122,13 +3876,126 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-
+if(keycode != 8'h07)
+	collision <= 0;
 	end 
+	/////////////////////////////////////////////
+	if (
+		(spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY)
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		)
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
 	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+if(keycode != 8'h07)
+	collision <= 0;
+	end 
+		
+	/////////////////////////////////////////	
+		
+		end //coloring ends here 
+		end
 		end
 		
 	s_rightfour:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		right = 1;
 		if (DistX < sprite_size && DistY < sprite_size)
@@ -3226,6 +4093,8 @@ up = 0;
 		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
 		)
 		begin
+		if(first_map_flag == 2'b01)
+	begin
 	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
 	collision <= 1;
 	
@@ -3235,13 +4104,128 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-
+if(keycode != 8'h07)
+	collision <= 0;
 	end 
-		end
+//////////////////////////////////
+
+if (
+		(spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY)
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size-2) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size -26 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 24 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 22 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 20 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 18 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 16 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 14 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 12 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 10 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 8 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 6 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 4 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 2 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 0 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 26 ) == DrawY))
+		|| ((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 24 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 22 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 20 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 18 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 16 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 14 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 12 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 10 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 8 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 6 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 4 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 2 ) == DrawY))
+		||((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size + 0 ) == DrawY))
+		)
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+if(keycode != 8'h07)
+	collision <= 0;
+	end 
+
+/////////////////////////////////////////
 		
+		
+		end //ends the coloring 
+		end
+		end
 	// add first motion palette RGB	
 	s_upone:
 		begin
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(up1_red != 4'h7 && up1_green != 4'h7 && up1_blue != 4'h7 )
@@ -3254,7 +4238,9 @@ up = 0;
 		if((spriteX + (sprite_size/2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY))
 		
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3263,14 +4249,43 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-
+ if(keycode != 8'h1A)
+	collision <= 0;
 	end
-else 
-up = 0;	
+	//////////////////////////////////////////////////
+	if((spriteX + (sprite_size/2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY))
+		
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+ if(keycode != 8'h1A)
+	collision <= 0;
+	end
+	
+	///////////////////////////////////////////////
+	
 		end
+		end
+		end
+		
+		
 		
 	s_uptwo:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(up1_red != 4'h7 && up1_green != 4'h7 && up1_blue != 4'h7 )
@@ -3282,7 +4297,9 @@ up = 0;
 		
 		if((spriteX + (sprite_size/2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY))
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3291,15 +4308,44 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-
+if(keycode != 8'h1A)
+	collision <= 0;
 	end
-else 
-up = 0;	
-		end
+	///////////////////////////////
+	if((spriteX + (sprite_size/2) == DrawX) && (spriteY + (sprite_size - 28 ) == DrawY))
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
 
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+if(keycode != 8'h1A)
+	collision <= 0;
+	end
+	
+	
+	///////////////////////////////
+		
+		
+		
+		
+		end //ends the coloring 
+		end
+		end
    // add second motion palette RGB		
 	s_upthree:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(final_up2_red != 4'hF && final_up2_green != 4'hF && final_up2_blue != 4'hF )
@@ -3315,7 +4361,9 @@ up = 0;
 		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 		) 
 	
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3324,14 +4372,46 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-
+if(keycode != 8'h1A)
+	collision <= 0;
 	end
-else 
-up = 0;	
-		end
+	//////////////////////////////////////
+	if( 	((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-8) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-12) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-16) == DrawX) && (spriteY + (sprite_size - 28 ))) ||	((spriteX + (sprite_size-20) == DrawX) && (spriteY + (sprite_size - 28 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 		) 
 	
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+if(keycode != 8'h1A)
+	collision <= 0;
+	end
+	
+	
+	//////////////////////////////////////
+		
+		
+		end //ends the coloring
+		end
+		end
+		
 	s_upfour:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(final_up2_red != 4'hF && final_up2_green != 4'hF && final_up2_blue != 4'hF )
@@ -3348,7 +4428,9 @@ up = 0;
 		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 		) 
 	
 		begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+		if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3357,14 +4439,46 @@ up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-
+if(keycode != 8'h1A)
+	collision <= 0;
 	end	
-else up = 0; 	
-		end
+////////////////////////////////////
+if( 	((spriteX + (sprite_size) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-4) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-8) == DrawX) && (spriteY + (sprite_size - 28 ))) || ((spriteX + (sprite_size-12) == DrawX) && (spriteY + (sprite_size - 28 ))) ||
+		((spriteX + (sprite_size-16) == DrawX) && (spriteY + (sprite_size - 28 ))) ||	((spriteX + (sprite_size-20) == DrawX) && (spriteY + (sprite_size - 28 )))	||													
+		((spriteX + (sprite_size-24) == DrawX) && (spriteY + (sprite_size - 28))) || ((spriteX + (sprite_size-28) == DrawX) && (spriteY + (sprite_size - 28))) 		) 
+	
+		begin
+		if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
 
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+if(keycode != 8'h1A)
+	collision <= 0;
+	end	
+
+
+//////////////////////////////
+		
+		
+		end //ends the coloring
+		end
+	end
 	// add first motion palette RGB		
 	s_downone:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(down1_red != 4'h0 && down1_green != 4'h0 && down1_blue != 4'h0 )
@@ -3377,7 +4491,9 @@ else up = 0;
 		//instead of drawx, check boundaries 
 	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
 	begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3386,14 +4502,41 @@ else up = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-	
+	if(keycode != 8'h16)
+	collision <= 0;
 	end	
-else 
-down = 0;	
+///////////////////////////
+	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
+	begin
+	if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+	if(keycode != 8'h16)
+	collision <= 0;
+	end		
+		
+		
+/////////////////////////////////////		
+		end //ends the coloring
 		end
+		end
+		
 		
 	s_downtwo:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(down1_red != 4'h0 && down1_green != 4'h0 && down1_blue != 4'h0 )
@@ -3406,7 +4549,9 @@ down = 0;
 		//instead of drawx, check boundaries 
 	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
 	begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3415,15 +4560,44 @@ down = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-	
+	if(keycode != 8'h16)
+	collision <= 0;
 	end	
-else 
-down = 0;	
+	/////////////////////
+	
+	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
+	begin
+	if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+	if(keycode != 8'h16)
+	collision <= 0;
+	end	
+	
+	
+	//////////////////////////
+		
+		
+		end  //ends the coloring
+		end
 		end
 		
    // add second motion palette RGB	
 	s_downthree:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 		if (DistX < sprite_size && DistY < sprite_size)
 	if(final_down2_red != 4'hF && final_down2_green != 4'hF && final_down2_blue != 4'hF )
@@ -3435,7 +4609,9 @@ down = 0;
 		//instead of drawx, check boundaries 
 	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
 	begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3444,14 +4620,46 @@ down = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-	
+	if(keycode != 8'h16)
+	collision <= 0;
 	end
-else 
-down = 0; 	
+	///////////////////////////////
+	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
+	begin
+	if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+	if(keycode != 8'h16)
+	collision <= 0;
+	end
+	
+	
+	
+	//////////////////////////////////
+		
+		
+		
+		
+		end//ends the coloring
 		end
+		end
+		
 		
 	s_downfour:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin//
 		 sword_collision = 0;
 	if (DistX < sprite_size && DistY < sprite_size)
 	if(final_down2_red != 4'hF && final_down2_green != 4'hF && final_down2_blue != 4'hF )
@@ -3463,7 +4671,9 @@ down = 0;
 		//instead of drawx, check boundaries 
 	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
 	begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	if(first_map_flag == 2'b01)
+	begin
+	if(final_bc_red == 4'hE && final_bc_green == 4'hA && final_bc_blue == 4'hA)
 	collision <= 1;
 	
 	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
@@ -3472,10 +4682,38 @@ down = 0;
 	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
 	collision <= 1;
 	end	
-	
+	if(keycode != 8'h16)
+	collision <= 0;
 	end
-else 
-down = 0; 	
+	///////////////////////////
+	
+	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
+	begin
+	if(second_map_flag == 2'b01)
+	begin
+	if(background_2_red == 4'hF && background_2_green == 4'hB && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hE && background_2_green == 4'h8 && background_2_blue == 4'hA)
+	collision <= 1;
+	
+	if(background_2_red == 4'hF && background_2_green == 4'hC && background_2_blue == 4'hB)
+	collision <= 1;	
+
+	if(background_2_red == 4'hE && background_2_green == 4'h9 && background_2_blue == 4'hA)
+	collision <= 1;
+	end	
+	if(keycode != 8'h16)
+	collision <= 0;
+	end
+	
+	
+	
+	///////////////////////////
+		
+		
+		end //ends the coloring
+		end
 		end
 	
 	
@@ -3486,6 +4724,8 @@ down = 0;
 	
 	
 	sword_right1:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 		 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -3511,7 +4751,7 @@ down = 0;
 	
 	end		
 		end
-	
+	end
 	
 
 	
@@ -3527,6 +4767,8 @@ down = 0;
 	
 	
 	sword_right2:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY -1 < sprite_size)
@@ -3552,6 +4794,7 @@ down = 0;
 	
 	end		
 		end
+		end
 		
 		
 		
@@ -3562,6 +4805,8 @@ down = 0;
 		
 		
 	sword_right3:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX - 3 < sprite_size && DistY -1 < sprite_size)
@@ -3588,12 +4833,14 @@ down = 0;
 	
 	end		
 		end
-	
+	end
 	
 	
 	
 	
 	sword_right4:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX - 3  < sprite_size && DistY -1  < sprite_size)
@@ -3620,10 +4867,13 @@ down = 0;
 	
 	end			
 		end
+		end
 	
 	
 	
 	sword_right5:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX - 2 < sprite_size && DistY  < sprite_size)
@@ -3650,12 +4900,15 @@ down = 0;
 	
 	end			
 		end
+		end
 		
 
 	
 	
 	
 	sword_right6:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX - 2 < sprite_size && DistY  < sprite_size)
@@ -3682,7 +4935,7 @@ down = 0;
 	
 	end	
 		end
-	
+	end
 	
 	
 	
@@ -3690,6 +4943,8 @@ down = 0;
 	
 	
 	sword_right7:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX < sprite_size && DistY < sprite_size)
@@ -3716,12 +4971,15 @@ down = 0;
 	
 	end		
 		end
+		end
 	
 	
 	
 	
 	
 	sword_right8:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX < sprite_size && DistY < sprite_size)
@@ -3747,11 +5005,14 @@ down = 0;
 	end	
 	end			
 		end
+		end
 		
 ///////////////////////////upsword//////////////////////////////////////////////	
 		
 		
 	sword_up1:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -3776,6 +5037,7 @@ down = 0;
 	end	
 	
 	end		
+		end
 		end
 	
 	
@@ -3794,6 +5056,8 @@ down = 0;
 	
 	sword_up2:
 		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	if(sword_up1_red != 4'h0 && sword_up1_green != 4'h0 && sword_up1_blue!= 4'h0 )
@@ -3818,6 +5082,7 @@ down = 0;
 	
 	end		
 		end
+		end
 		
 		
 		
@@ -3829,7 +5094,8 @@ down = 0;
 		
 	sword_up3:
 		begin
-			 sword_collision = 1;
+		if (link_should_not_be_on_title_screen == 1)
+		begin
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	if(sword_up2_red != 4'h0 && sword_up2_green != 4'h0 && sword_up2_blue!= 4'h0 )
 	 //if(right == 1) //basically checking if the right sprite is bein
@@ -3853,12 +5119,14 @@ down = 0;
 	
 	end		
 		end
-	
+	end
 	
 	
 	
 	
 	sword_up4:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -3884,10 +5152,12 @@ down = 0;
 	
 	end			
 		end
-	
+	end
 	
 	
 	sword_up5:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -3913,12 +5183,15 @@ down = 0;
 	
 	end				
 		end
+		end
 		
 
 	
 	
 	
 	sword_up6:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -3944,6 +5217,7 @@ down = 0;
 	
 	end		
 		end
+		end
 	
 	
 	
@@ -3952,6 +5226,8 @@ down = 0;
 	
 	
 	sword_up7:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -3977,12 +5253,15 @@ down = 0;
 	
 	end			
 		end
+		end
 	
 	
 	
 	
 	
 	sword_up8:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4008,6 +5287,7 @@ down = 0;
 	
 	end					
 		end
+		end
 		
 //////////////////////upsword////////////////////////////////////////////////////////	
 		
@@ -4021,6 +5301,8 @@ down = 0;
 		
 		
 	sword_down1:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4046,7 +5328,7 @@ down = 0;
 	
 	end		
 		end
-	
+	end
 	
 
 	
@@ -4062,6 +5344,8 @@ down = 0;
 	
 	
 	sword_down2:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4087,7 +5371,7 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end		
 		end
-		
+		end
 		
 		
 		
@@ -4097,6 +5381,8 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 		
 		
 	sword_down3:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4122,12 +5408,15 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end
 		end
+		end
 	
 	
 	
 	
 	
 	sword_down4:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4153,10 +5442,12 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end	
 		end
-	
+	end
 	
 	
 	sword_down5:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4182,12 +5473,15 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end				
 		end
+		end
 		
 
 	
 	
 	
 	sword_down6:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4212,6 +5506,7 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	end	
 	
 	end				
+		end
 		end
 	
 	
@@ -4222,36 +5517,7 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	sword_down7:
 		begin
-			 sword_collision = 1;
-		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
-	if(sword_down4_red != 4'h0 && sword_down4_green != 4'h0 && sword_down4_blue!= 4'h0 )
-	 //if(right == 1) //basically checking if the right sprite is bein
-	 begin
-	 
-		red <= sword_down4_red;
-		green <= sword_down4_green;
-		blue <= sword_down4_blue;	
-		//instead of drawx, check boundaries 
-	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
-	begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-	collision <= 1;
-	end	
-	
-	end					
-		end
-	
-	
-	
-	
-	
-	sword_down8:
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4276,6 +5542,41 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	end	
 	
 	end					
+		end
+		end
+	
+	
+	
+	
+	
+	sword_down8:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin
+			 sword_collision = 1;
+		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
+	if(sword_down4_red != 4'h0 && sword_down4_green != 4'h0 && sword_down4_blue!= 4'h0 )
+	 //if(right == 1) //basically checking if the right sprite is bein
+	 begin
+	 
+		red <= sword_down4_red;
+		green <= sword_down4_green;
+		blue <= sword_down4_blue;	
+		//instead of drawx, check boundaries 
+	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
+	begin
+	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
+	collision <= 1;
+	end	
+	
+	end					
+		end
 		end
 				
 	
@@ -4288,6 +5589,8 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 		
 		
 	sword_left1:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4313,6 +5616,7 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end		
 		end
+		end
 	
 	
 
@@ -4329,6 +5633,8 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	
 	sword_left2:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 	if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4354,6 +5660,7 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end		
 		end
+		end
 		
 		
 		
@@ -4365,36 +5672,7 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 		
 	sword_left3:
 		begin
-			 sword_collision = 1;
-		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
-	if(sword_left2_red != 4'h0 && sword_left2_green != 4'h0 && sword_left2_blue!= 4'h0 )
-	 //if(right == 1) //basically checking if the right sprite is bein
-	 begin
-	 
-		red <= sword_left2_red;
-		green <= sword_left2_green;
-		blue <= sword_left2_blue;	
-		//instead of drawx, check boundaries 
-	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
-	begin
-	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
-	collision <= 1;
-	
-	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
-	collision <= 1;
-	end	
-	
-	end	
-		end
-	
-	
-	
-	
-	
-	sword_left4:
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4420,10 +5698,47 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end	
 		end
+		end
+	
+	
+	
+	
+	
+	sword_left4:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
+		begin
+			 sword_collision = 1;
+		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
+	if(sword_left2_red != 4'h0 && sword_left2_green != 4'h0 && sword_left2_blue!= 4'h0 )
+	 //if(right == 1) //basically checking if the right sprite is bein
+	 begin
+	 
+		red <= sword_left2_red;
+		green <= sword_left2_green;
+		blue <= sword_left2_blue;	
+		//instead of drawx, check boundaries 
+	if ((spriteX + (sprite_size-15) == DrawX) && (spriteY + (sprite_size + 15 )))
+	begin
+	if(final_bc_red == 4'hB && final_bc_green == 4'h4 && final_bc_blue == 4'h7)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hD && final_bc_green == 4'h8 && final_bc_blue == 4'hA)
+	collision <= 1;
+	
+	if(final_bc_red == 4'hF && final_bc_green == 4'hC && final_bc_blue == 4'hC)
+	collision <= 1;
+	end	
+	
+	end	
+		end
+		end
 	
 	
 	
 	sword_left5:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4449,12 +5764,15 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end				
 		end
+		end
 		
 
 	
 	
 	
 	sword_left6:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4480,6 +5798,7 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end					
 		end
+		end
 	
 	
 	
@@ -4488,6 +5807,8 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	
 	sword_left7:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4513,12 +5834,14 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	
 	end					
 		end
-	
+	end
 	
 	
 	
 	
 	sword_left8:
+		begin
+		if (link_should_not_be_on_title_screen == 1)
 		begin
 			 sword_collision = 1;
 		if (DistX -3  < sprite_size && DistY- 1< sprite_size)
@@ -4543,6 +5866,7 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	end	
 	
 	end					
+		end
 		end
 				
 	
@@ -4555,19 +5879,20 @@ if (DistX -3  < sprite_size && DistY- 1< sprite_size)
 	endcase
 end
 
-
-Final_background_rom Final_background_rom (
+final_background_rom final_background_rom (
 	.clock   (vga_clk),
 	.address (final_bc_address),
 	.q       (final_bc_q)
 );
 
-Final_background_palette Final_background_palette (
+final_background_palette final_background_palette (
 	.index (final_bc_q),
 	.red   (final_bc_red),
 	.green (final_bc_green),
 	.blue  (final_bc_blue)
 );
+
+
 
 zelda_rom zelda_rom (
 	.clock   (vga_clk),
@@ -5045,6 +6370,36 @@ background_2_palette background_2_palette0 (
 	.green (background_2_green),
 	.blue  (background_2_blue)
 );
+
+
+
+title_rom title_rom (
+	.clock   (vga_clk),
+	.address (title_address),
+	.q       (title_q)
+);
+
+title_palette title_palette (
+	.index (title_q),
+	.red   (title_red),
+	.green (title_green),
+	.blue  (title_blue)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
