@@ -1,0 +1,66 @@
+/*
+ //* main.c
+ *
+ *  Created on: Mar 5, 2023
+ *      Author: pitch
+ */
+// Main.c - makes LEDG0 on DE2-115 board blink if NIOS II is set up correctly
+// for ECE 385 - University of Illinois - Electrical and Computer Engineering
+// Author: Zuofu Cheng
+
+
+int main()
+{
+
+	volatile unsigned int *LED_PIO = (unsigned int*)0x50; //make a pointer to access the PIO block
+	volatile unsigned int *sw = (unsigned int*)0x40;
+    volatile unsigned int *accum = (unsigned int*)0x20;
+    //volatile unsigned int *reset = (unsigned int*) 0x;
+    unsigned int sum = 0;
+
+	*LED_PIO = 0; //clear all LEDs
+
+	while ( (1+1) != 3) //infinite loop
+	{
+
+		//if(*reset){*LED_PIO = 0}
+
+
+		//if(~(*reset)){
+			if(*accum){
+				sum += *sw ;
+				*LED_PIO = sum ;
+//				while(~(*accum)){}
+//			}
+	}
+
+	}
+	return 1; //never gets here
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

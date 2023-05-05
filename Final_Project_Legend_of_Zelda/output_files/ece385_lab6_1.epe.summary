@@ -1,0 +1,7 @@
+Early Power Estimator File Generator Status : Successful - Fri Apr 28 13:46:07 2023
+Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
+Revision Name : ece385_lab6_1
+Top-level Entity Name : lab62
+Family : MAX 10
+Device : 10M50DAF484C7G
+Power Estimation Confidence : Low: user provided insufficient toggle rate data
