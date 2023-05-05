@@ -1,0 +1,43 @@
+module  testbench(); 
+
+timeunit 10ns;
+timeprecision 1ns;
+
+//Module lookahead_adder
+
+//logic   [15:0] A, B;
+//logic   cin;
+//logic   [15:0] S;
+//logic   cout;
+//logic   p;
+//logic   g;
+//
+//lookahead_adder lookahead0(.*);
+//    initial begin: TEST_VECTORS
+//
+//
+//          A = 16'h1897
+//          B = 16'hA123
+//          c_in = 0
+//
+//    end
+      
+      
+logic   [15:0] A, B;
+logic   cin;
+logic   [15:0] S;
+logic   cout;
+
+
+ripple_adder ripple0(.*);
+initial begin: TEST_VECTORS
+
+
+            A = 16'h1897;
+            B = 16'hA123;
+         cin = 0;
+
+      end
+      
+
+endmodule
